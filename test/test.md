@@ -1,25 +1,26 @@
-# Markdown Viewer Extension 功能测试
+# Markdown Viewer Extension 渲染效果测试
 
-这个文档用于测试扩展的各种功能和边界情况。
+本文档用于全面测试 Chrome 扩展的 Markdown 渲染功能，按照从简单到复杂的顺序组织测试用例。
 
-## 目录概览
+## 测试内容概览
 
-本测试文档按照功能复杂度和重要性进行组织：
-
-1. **基础语法** - Markdown核心语法测试
-2. **文本格式** - 格式化、特殊字符和换行处理
-3. **列表和表格** - 结构化内容
-4. **代码语法高亮** - 多语言代码支持
-5. **数学公式** - KaTeX数学渲染
-6. **图表和图像** - Mermaid图表和SVG处理
-7. **错误处理** - 边界情况和异常
-8. **测试总结** - 功能覆盖清单
+1. **基础语法** - 标题、段落、文本格式
+2. **链接和引用** - 超链接、图片、引用块
+3. **列表** - 有序列表、无序列表、嵌套列表
+4. **表格** - 基础表格、对齐表格
+5. **代码** - 行内代码、代码块、多语言语法高亮
+6. **数学公式** - KaTeX 行内和块级公式
+7. **图表** - Mermaid 流程图、序列图、甘特图
+8. **图片处理** - SVG 转换、Data URL、内联图片
+9. **HTML 混合** - 复杂布局和组件
+10. **边界测试** - 错误处理、极端情况
 
 ---
 
-## 1. 基础 Markdown 语法测试
+## 1. 基础 Markdown 语法
 
 ### 1.1 标题层级测试
+
 # 一级标题
 ## 二级标题
 ### 三级标题
@@ -27,56 +28,14 @@
 ##### 五级标题
 ###### 六级标题
 
-### 1.2 文本格式化
-**粗体文本**  
-*斜体文本*  
-~~删除线~~  
-`行内代码`  
-普通文本和 **混合** *格式* ~~测试~~
+### 1.2 段落和换行
 
-### 1.3 链接测试
-[GitHub链接](https://github.com)  
-[相对链接](./README.md)  
-[锚点链接](#测试总结)
+这是第一个段落。段落之间使用空行分隔。
 
-### 1.4 图片基础测试
-![网络图片](https://picsum.photos/200/150)
-
-*注意：SVG图片的详细测试请参见第6节图表和图像测试*
-
----
-
-## 2. 文本格式和特殊字符
-
-### 2.1 引用和分割线
-> 这是一个简单的引用
-> 
-> 支持多行引用
-> 
-> > 嵌套引用测试
-> > 
-> > 包含**格式化**文本
-
-分割线样式测试：
-
----
-
-***
-
-___
-
-### 2.2 特殊字符测试
-特殊符号测试：@ # $ % ^ & * ( ) [ ] { } | \ ` ~ ! ? < > " '
-
-中文标点：，。！？；：""''（）【】《》
-
-Emoji测试：😀 🎉 🚀 ✅ ❌ 🔥 💡 📝
-
-### 2.3 换行处理测试（remark-breaks 功能）
-**单行换行测试：**
-这是第一行文本
-这是第二行文本，应该与第一行换行显示
-这是第三行文本，也应该换行显示
+这是第二个段落。测试 remark-breaks 插件的换行功能：
+第一行文本
+第二行文本（单个换行符应该生效）
+第三行文本
 
 **段落内混合格式换行：**
 **粗体文本**
@@ -85,10 +44,154 @@ Emoji测试：😀 🎉 🚀 ✅ ❌ 🔥 💡 📝
 `代码文本`，继续换行
 ~~删除线文本~~，最后一行
 
-**引用块内换行：**
+**长段落换行测试：**
+这是一个测试 remark-breaks 插件功能的长段落。
+在传统的 Markdown 中，单个换行符不会产生换行效果。
+但是添加了 remark-breaks 插件后，每个换行符都会转换为 HTML 的 <br> 标签。
+这样就可以实现更自然的换行显示效果。
+不再需要在每行末尾添加两个空格来实现换行。
+
+### 1.3 文本格式化
+
+**粗体文本** 使用两个星号或下划线包围
+
+*斜体文本* 使用一个星号或下划线包围
+
+***粗斜体*** 使用三个星号
+
+~~删除线~~ 使用两个波浪号
+
+`行内代码` 使用反引号包围
+
+混合格式测试：**粗体中包含 *斜体* 文字**，~~删除线中包含 **粗体**~~
+
+### 1.4 特殊字符和转义
+
+**标点符号：** ，。！？；：""''（）【】《》
+
+**特殊符号：** @ # $ % ^ & * ( ) [ ] { } | \ ` ~ ! ? < > " '
+
+**Emoji：** 😀 🎉 🚀 ✅ ❌ 🔥 💡 📝 ⭐ 🌟
+
+**Unicode 符号：**
+- 数学：∑ ∏ ∫ ∞ ± × ÷ √ ∆ ∇ ∂ ∈ ∉ ⊂ ⊃ ∪ ∩
+- 箭头：← → ↑ ↓ ↔ ⇐ ⇒ ⇑ ⇓ ⇔
+- 其他：© ® ™ € £ ¥ § ¶ † ‡ • ‰ ‱
+
+**转义字符测试：**
+\*不是斜体\* \`不是代码\` \# 不是标题 \[不是链接\](test)
+
+### 1.5 分割线
+
+使用三个或更多的星号、减号或下划线创建分割线：
+
+---
+
+***
+
+___
+
+---
+
+## 2. 链接和引用
+
+### 2.1 超链接
+
+**外部链接：** [GitHub](https://github.com)
+
+**相对路径链接：** [README 文件](../README.md)
+
+**锚点链接：** [跳转到测试总结](#10-边界测试)
+
+**自动链接：** https://github.com 和 user@example.com
+
+### 2.2 图片
+
+**网络图片：**
+![Random Photo](https://picsum.photos/400/300)
+
+**本地图片（相对路径）：**
+![Icon](../icons/icon128.png)
+
+*注：SVG 和 Data URL 图片的详细测试在第 8 节*
+
+### 2.3 引用块
+
+> 这是一个简单的引用块。
+> 
+> 引用块可以包含多个段落。
+
+> **嵌套引用测试：**
+> 
+> 外层引用内容
+> 
+> > 这是嵌套的引用
+> > 
+> > 可以包含 **格式化** 文本和 `代码`
+> 
+> 回到外层引用
+
+**引用块内换行测试：**
 > 引用的第一行
 > 引用的第二行，应该换行
 > 引用的第三行
+
+---
+
+## 3. 列表
+
+### 3.1 无序列表
+
+**标准无序列表：**
+- 列表项 1
+- 列表项 2
+- 列表项 3
+
+**星号语法：**
+* 列表项 A
+* 列表项 B
+* 列表项 C
+
+**加号语法：**
++ 列表项 X
++ 列表项 Y
++ 列表项 Z
+
+### 3.2 有序列表
+
+1. 第一项
+2. 第二项
+3. 第三项
+4. 第四项
+
+### 3.3 嵌套列表
+
+**无序嵌套：**
+- 顶层项目 1
+  - 二级项目 1.1
+  - 二级项目 1.2
+    - 三级项目 1.2.1
+    - 三级项目 1.2.2
+- 顶层项目 2
+  - 二级项目 2.1
+
+**有序嵌套：**
+1. 第一步
+   1. 子步骤 1.1
+   2. 子步骤 1.2
+2. 第二步
+   1. 子步骤 2.1
+   2. 子步骤 2.2
+
+**混合嵌套：**
+1. 有序列表项
+   - 无序子项 A
+   - 无序子项 B
+2. 另一个有序项
+   * 使用星号的子项
+   * 另一个星号子项
+
+### 3.4 列表内换行和段落
 
 **列表项内换行：**
 - 列表项标题
@@ -100,99 +203,109 @@ Emoji测试：😀 🎉 🚀 ✅ ❌ 🔥 💡 📝
   包含多行的说明文字
   每行都应该正确换行显示
 
-**长段落换行测试：**
-这是一个测试 remark-breaks 插件功能的长段落。
-在传统的 Markdown 中，单个换行符不会产生换行效果。
-但是添加了 remark-breaks 插件后，每个换行符都会转换为 HTML 的 <br> 标签。
-这样就可以实现更自然的换行显示效果。
-不再需要在每行末尾添加两个空格来实现换行。
+### 3.5 非标准列表符号（测试规范化）
 
-### 2.4 转义字符测试
-\*不是斜体\*  
-\`不是代码\`  
-\# 不是标题  
-\[不是链接\](test)
-
----
-
-## 3. 列表和表格
-
-### 3.1 标准列表
-**无序列表：**
-- 标准项目 1
-- 标准项目 2
-  - 嵌套项目 2.1
-  - 嵌套项目 2.2
-- 标准项目 3
-
-**有序列表：**
-1. 第一项
-2. 第二项
-   1. 嵌套有序列表 1
-   2. 嵌套有序列表 2
-3. 第三项
-
-### 3.2 非标准列表（测试列表规范化）
 • 使用圆点符号的项目 1
 • 使用圆点符号的项目 2
-	• 使用tab缩进的嵌套项目
-	• 另一个tab缩进项目
 
 ● 使用实心圆点的项目 1
 ● 使用实心圆点的项目 2
 
-**混合列表：**
-1. 有序列表项
-   - 无序子项目
-   - 另一个无序子项目
-2. 另一个有序项
-   • 使用圆点的子项目
-   • 测试符号混合
+---
 
-### 3.3 表格测试
-**基础表格：**
+## 4. 表格
+
+### 4.1 基础表格
+
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| 单元格 A1 | 单元格 B1 | 单元格 C1 |
+| 单元格 A2 | 单元格 B2 | 单元格 C2 |
+| 单元格 A3 | 单元格 B3 | 单元格 C3 |
+
+### 4.2 对齐表格
+
+| 左对齐 | 居中对齐 | 右对齐 |
+|:-------|:--------:|-------:|
+| Left | Center | Right |
+| 文本 | 123 | 456 |
+| 长文本测试 | 中文 | 789 |
+
+### 4.3 功能状态表
+
 | 功能 | 状态 | 描述 |
-|------|------|------|
-| Markdown解析 | ✅ | 基础语法支持 |
-| 数学公式 | ✅ | KaTeX渲染 |
-| 代码高亮 | ✅ | 多语言支持 |
-| Mermaid图表 | ✅ | 多种图表类型 |
+|------|:----:|------|
+| Markdown 解析 | ✅ | 完整支持 GFM |
+| 代码语法高亮 | ✅ | highlight.js |
+| 数学公式渲染 | ✅ | KaTeX 引擎 |
+| Mermaid 图表 | ✅ | 转 PNG 输出 |
+| SVG 处理 | ✅ | 自动转换 |
+| 缓存机制 | ✅ | 双层缓存 |
 
-**对齐表格：**
-| 左对齐 | 居中 | 右对齐 |
-|:-------|:----:|-------:|
-| 内容1 | 内容2 | 内容3 |
-| 长内容测试 | 中文测试 | 123 |
+### 4.4 复杂内容表格
+
+| 语言 | 示例代码 | 说明 |
+|------|----------|------|
+| JavaScript | `const x = 10;` | 变量声明 |
+| Python | `x = 10` | 无需分号 |
+| SQL | `SELECT * FROM users;` | 查询语句 |
+| Bash | `echo "Hello"` | 输出命令 |
 
 ---
 
-## 4. 代码语法高亮测试
+## 5. 代码
 
-### 4.1 JavaScript 代码
+### 5.1 行内代码
+
+在文本中使用 `console.log()` 或 `print()` 等函数。
+
+关键字测试：`async`、`await`、`function`、`class`、`import`、`export`
+
+### 5.2 代码块
+
+**无语言指定：**
+```
+This is a plain code block
+Without syntax highlighting
+Just monospace font
+```
+
+**JavaScript / ES6+：**
 ```javascript
-// ES6+ JavaScript 特性测试
+// ES6+ Features
 async function fetchUserData(userId) {
     try {
         const response = await fetch(`/api/users/${userId}`);
         const userData = await response.json();
         return { success: true, data: userData };
     } catch (error) {
-        console.error('获取用户数据失败:', error);
-        throw new Error(`无法获取用户 ${userId} 的数据`);
+        console.error('Error fetching user data:', error);
+        throw new Error(`Failed to fetch user ${userId}`);
     }
 }
 
-// 箭头函数和解构赋值
+// Arrow function and destructuring
 const processData = ({ name, age, ...rest }) => ({
     displayName: name.toUpperCase(),
     category: age >= 18 ? 'adult' : 'minor',
     metadata: rest
 });
+
+// Class syntax
+class User {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    greet() {
+        return `Hello, ${this.name}!`;
+    }
+}
 ```
 
-### 4.2 Python 代码
+**Python：**
 ```python
-# Python 类型提示和装饰器
+# Type hints and async/await
 from typing import List, Dict, Optional
 import asyncio
 
@@ -202,24 +315,27 @@ class DataProcessor:
         self.results: List[str] = []
     
     async def process_items(self, items: List[str]) -> Optional[Dict]:
-        """处理数据项并返回结果"""
+        """Process items and return results"""
         processed = []
         for item in items:
-            if item.strip():  # 过滤空字符串
+            if item.strip():
                 result = await self._process_single_item(item)
                 processed.append(result)
         
         return {"total": len(processed), "items": processed}
     
     async def _process_single_item(self, item: str) -> str:
-        # 模拟异步处理
+        # Simulate async processing
         await asyncio.sleep(0.1)
-        return f"处理完成: {item}"
+        return f"Processed: {item}"
+
+# List comprehension
+squares = [x**2 for x in range(10) if x % 2 == 0]
 ```
 
-### 4.3 Java 代码
+**Java：**
 ```java
-// Java 泛型和注解
+// Spring Boot REST Controller
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
@@ -234,16 +350,23 @@ public class UserController {
             return user.map(u -> ResponseEntity.ok(UserDTO.fromEntity(u)))
                       .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("获取用户失败: {}", e.getMessage());
+            logger.error("Failed to get user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    
+    @PostMapping("/users")
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody CreateUserRequest request) {
+        User newUser = userService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                           .body(UserDTO.fromEntity(newUser));
     }
 }
 ```
 
-### 4.4 SQL 代码
+**SQL：**
 ```sql
--- 复杂查询示例
+-- Complex query with CTE
 WITH user_stats AS (
     SELECT 
         u.id,
@@ -267,22 +390,22 @@ SELECT
     tu.post_count,
     ROUND(tu.avg_rating, 2) as rating,
     CASE 
-        WHEN tu.avg_rating >= 4.5 THEN '优秀'
-        WHEN tu.avg_rating >= 3.5 THEN '良好'
-        ELSE '一般'
+        WHEN tu.avg_rating >= 4.5 THEN 'Excellent'
+        WHEN tu.avg_rating >= 3.5 THEN 'Good'
+        ELSE 'Average'
     END as level
 FROM top_users tu
 ORDER BY tu.avg_rating DESC;
 ```
 
-### 4.5 HTML/CSS 代码
+**HTML/CSS：**
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>响应式卡片组件</title>
+    <title>Responsive Card Component</title>
     <style>
         .card-container {
             display: grid;
@@ -301,26 +424,27 @@ ORDER BY tu.avg_rating DESC;
         
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
     <div class="card-container">
         <div class="card">
-            <h3>功能特性</h3>
-            <p>支持多种编程语言的语法高亮显示</p>
+            <h3>Feature</h3>
+            <p>Multi-language syntax highlighting support</p>
         </div>
     </div>
 </body>
 </html>
 ```
 
-### 4.6 Shell 脚本
+**Bash/Shell：**
 ```bash
 #!/bin/bash
-# 自动化部署脚本
+# Automated deployment script
 
-set -e  # 遇到错误立即退出
+set -e  # Exit on error
 
 APP_NAME="markdown-viewer"
 VERSION=${1:-"latest"}
@@ -334,76 +458,137 @@ function log() {
 }
 
 function check_requirements() {
-    log "检查系统要求..."
+    log "Checking system requirements..."
     
-    # 检查Docker环境
     if ! command -v docker &> /dev/null; then
-        log "错误: Docker 未安装"
+        log "Error: Docker not installed"
         exit 1
     fi
     
-    # 检查docker-compose
     if ! command -v docker-compose &> /dev/null; then
-        log "错误: docker-compose 未安装"
+        log "Error: docker-compose not installed"
         exit 1
     fi
     
-    log "系统要求检查通过"
+    log "Requirements check passed"
 }
 
 function deploy() {
-    log "开始部署 $APP_NAME:$VERSION"
+    log "Starting deployment of $APP_NAME:$VERSION"
     check_requirements
     
-    # 创建部署目录
     sudo mkdir -p "$DEPLOY_DIR"
     cd "$DEPLOY_DIR"
     
-    # 停止旧容器
-    log "停止现有容器..."
+    log "Stopping existing containers..."
     docker-compose down 2>/dev/null || true
     
-    # 启动新容器
-    log "启动容器..."
+    log "Starting new containers..."
     if docker-compose up -d; then
-        log "✅ 部署完成，服务正常运行"
+        log "✅ Deployment completed successfully"
     else
-        log "❌ 容器启动失败"
+        log "❌ Container startup failed"
         exit 1
     fi
 }
 
-# 主程序
 case "${1:-deploy}" in
     "deploy") deploy ;;
-    "help") echo "用法: $0 [deploy|help]" ;;
-    *) echo "未知操作: $1"; exit 1 ;;
+    "help") echo "Usage: $0 [deploy|help]" ;;
+    *) echo "Unknown action: $1"; exit 1 ;;
 esac
 ```
 
-### 4.7 内联代码高亮测试
-在文本中使用 `console.log()` 和 `print()` 等内联代码，以及 `async/await`、`lambda`、`SELECT`、`function` 等关键字应该也会被正确高亮。
+**JSON：**
+```json
+{
+  "name": "markdown-viewer-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for rendering Markdown files",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "scripting",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "file:///*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["file://*/*.md", "file://*/*.markdown"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
+```
 
-JavaScript中的 `Promise` 和 `fetch()` API，Python中的 `asyncio` 模块，以及SQL中的 `JOIN` 和 `WHERE` 子句都是现代编程的重要概念。
+**TypeScript：**
+```typescript
+// Generic types and interfaces
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    roles: Role[];
+}
+
+type Role = 'admin' | 'user' | 'guest';
+
+class UserManager<T extends User> {
+    private users: Map<number, T> = new Map();
+    
+    add(user: T): void {
+        this.users.set(user.id, user);
+    }
+    
+    get(id: number): T | undefined {
+        return this.users.get(id);
+    }
+    
+    filter(predicate: (user: T) => boolean): T[] {
+        return Array.from(this.users.values()).filter(predicate);
+    }
+}
+
+// Async/await with generics
+async function fetchData<T>(url: string): Promise<T> {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+}
+```
 
 ---
 
-## 5. 数学公式测试 (KaTeX)
+## 6. 数学公式 (KaTeX)
 
-### 5.1 行内数学公式
-这是行内公式：$E = mc^2$，还有 $\alpha + \beta = \gamma$
+### 6.1 行内公式
 
-数学表达式可以与文本混合：当 $x \to \infty$ 时，函数 $f(x) = \frac{1}{x}$ 趋于 $0$。
+这是行内公式：$E = mc^2$，爱因斯坦质能方程。
 
-### 5.2 块级数学公式
+常见数学表达式：$\alpha + \beta = \gamma$，$x^2 + y^2 = r^2$
+
+当 $x \to \infty$ 时，函数 $f(x) = \frac{1}{x}$ 趋于 $0$。
+
+### 6.2 块级公式
+
 **二次方程求根公式：**
 $$
-\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 $$
 
 **求和公式：**
 $$
 \sum_{i=1}^{n} x_i = x_1 + x_2 + \cdots + x_n
+$$
+
+**积分公式：**
+$$
+\int_{a}^{b} f(x) dx = F(b) - F(a)
 $$
 
 **高斯积分：**
@@ -428,51 +613,137 @@ cx + dy
 \end{bmatrix}
 $$
 
+**泰勒级数：**
+$$
+f(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \frac{f'''(a)}{3!}(x-a)^3 + \cdots
+$$
+
+**欧拉公式：**
+$$
+e^{ix} = \cos x + i\sin x
+$$
+
 ---
 
-## 6. 图表和图像测试
+## 7. Mermaid 图表
 
-### 6.1 Mermaid 流程图
+### 7.1 流程图
+
 ```mermaid
 flowchart TD
-    A[开始] --> B{决策}
-    B -->|是| C[执行操作A]
-    B -->|否| D[执行操作B]
-    C --> E[结束]
+    A[开始] --> B{检查条件}
+    B -->|条件满足| C[执行操作 A]
+    B -->|条件不满足| D[执行操作 B]
+    C --> E[记录日志]
     D --> E
+    E --> F{是否继续}
+    F -->|是| A
+    F -->|否| G[结束]
     
-    F[测试中文字符] --> G[❌ 旧版本方案]
-    G --> H[✅ 新版本方案]
+    style A fill:#e1f5e1
+    style G fill:#ffe1e1
+    style B fill:#e1e5ff
 ```
 
-### 6.2 Mermaid 序列图
+### 7.2 序列图
+
 ```mermaid
 sequenceDiagram
-    participant 用户
-    participant 浏览器
-    participant 扩展
-    participant 后台
+    participant U as 用户
+    participant B as 浏览器
+    participant E as 扩展
+    participant BG as 后台脚本
+    participant OS as 离屏文档
     
-    用户->>浏览器: 打开Markdown文件
-    浏览器->>扩展: 加载内容脚本
-    扩展->>后台: 处理Mermaid图表
-    后台->>扩展: 返回渲染结果
-    扩展->>浏览器: 显示最终内容
+    U->>B: 打开 .md 文件
+    B->>E: 加载 Content Script
+    E->>E: 解析 Markdown
+    E->>BG: 请求渲染 Mermaid
+    BG->>OS: 创建离屏文档
+    OS->>OS: 渲染为 PNG
+    OS->>BG: 返回图片数据
+    BG->>E: 返回结果
+    E->>B: 更新 DOM
+    B->>U: 显示最终内容
 ```
 
-### 6.3 Mermaid 甘特图
+### 7.3 甘特图
+
 ```mermaid
 gantt
     title 项目开发时间线
-    dateFormat  YYYY-MM-DD
+    dateFormat YYYY-MM-DD
+    section 需求阶段
+    需求分析           :done,    des1, 2024-01-01, 7d
+    原型设计           :done,    des2, 2024-01-08, 5d
     section 开发阶段
-    需求分析 :done,    des1, 2023-01-01,2023-01-07
-    UI设计   :done,    des2, 2023-01-08, 10d
-    编码实现 :active,  des3, 2023-01-19, 20d
-    测试验证 :         des4, after des3, 10d
+    前端开发           :active,  dev1, 2024-01-15, 20d
+    后端开发           :active,  dev2, 2024-01-20, 25d
+    section 测试阶段
+    单元测试           :         test1, after dev1, 5d
+    集成测试           :         test2, after dev2, 7d
+    section 发布阶段
+    部署上线           :         deploy, after test2, 2d
 ```
 
-### 6.4 Markdown Viewer Extension 整体架构图
+### 7.4 类图
+
+```mermaid
+classDiagram
+    class User {
+        +String name
+        +String email
+        +login()
+        +logout()
+    }
+    
+    class Admin {
+        +String role
+        +manageUsers()
+        +viewLogs()
+    }
+    
+    class Post {
+        +String title
+        +String content
+        +Date createdAt
+        +publish()
+        +delete()
+    }
+    
+    User <|-- Admin
+    User "1" --> "*" Post : creates
+```
+
+### 7.5 状态图
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Loading : 打开文件
+    Loading --> Parsing : 读取完成
+    Parsing --> Rendering : 解析完成
+    Rendering --> Ready : 渲染完成
+    Ready --> [*]
+    
+    Parsing --> Error : 解析失败
+    Rendering --> Error : 渲染失败
+    Error --> Idle : 重试
+```
+
+### 7.6 饼图
+
+```mermaid
+pie title 功能使用分布
+    "Markdown 解析" : 35
+    "代码高亮" : 25
+    "数学公式" : 15
+    "Mermaid 图表" : 20
+    "其他功能" : 5
+```
+
+### 7.7 扩展整体架构图
+
 
 <div style="width: 100%; max-width: 1600px; font-family: 'SimSun', 'Times New Roman', Times, serif; background: #fff; box-sizing: border-box; position: relative;">
   <style scoped>
@@ -765,6 +1036,7 @@ gantt
       </div>
     </div>
   </div>
+
   <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
     <h4 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">🏗️ 架构特点</h4>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 13px;">
@@ -830,63 +1102,132 @@ gantt
   </div>
 </div>
 
-### 6.5 SVG 图片处理测试
-**存在的 SVG 文件：**
-![基础SVG测试](./test.svg)
+---
 
-**功能测试 SVG：**
-![SVG功能测试](./test-features.svg)
+## 8. 图片处理
 
-**Data URL SVG 测试（应该立即渲染）：**
+### 8.1 SVG 文件测试
 
-![简单几何形状](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzMzNzNkYyIgcng9IjUiLz4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMCIgcj0iMjAiIGZpbGw9IiNlZjQ0NDQiLz4KICA8dGV4dCB4PSIxMCIgeT0iODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSI+RGF0YSBVUkwgU1ZHIFRlc3Q8L3RleHQ+Cjwvc3ZnPg==)
+**本地 SVG 文件：**
+![Basic SVG](./test.svg)
 
-![彩色图标](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNjRiM2Y0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1MCIgZmlsbD0idXJsKCNncmFkKSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cGF0aCBkPSJNNDAgNjAgTDU1IDc1IEw4NSA0NSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjYiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=)
+![Feature SVG](./test-features.svg)
 
-**URL编码格式测试：**
+### 8.2 Data URL SVG 测试
 
-![URL编码SVG](data:image/svg+xml,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2260%22%20height%3D%2260%22%20fill%3D%22%23f97316%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2250%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%22%20font-size%3D%2220%22%20fill%3D%22white%22%3EURL%3C/text%3E%3C/svg%3E)
+**Base64 编码格式：**
 
-**复杂 Data URL SVG（测试解析能力）：**
+![Simple Shapes](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzMzNzNkYyIgcng9IjUiLz4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMCIgcj0iMjAiIGZpbGw9IiNlZjQ0NDQiLz4KICA8dGV4dCB4PSIxMCIgeT0iODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSI+RGF0YSBVUkwgU1ZHPC90ZXh0Pgo8L3N2Zz4=)
 
-![简化数据图表](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjI1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNmOWZhZmMiIHJ4PSI4Ii8+CiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSIxMjUiIHk9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMzc0MTUxIj5TYWxlcyBEYXRhPC90ZXh0PgogIDwhLS0gQmFycyAtLT4KICA8cmVjdCB4PSI0MCIgeT0iMTAwIiB3aWR0aD0iMjAiIGhlaWdodD0iMzAiIGZpbGw9IiMzNGQ5OTkiLz4KICA8cmVjdCB4PSI4MCIgeT0iODAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI1MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDxyZWN0IHg9IjEyMCIgeT0iNjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDxyZWN0IHg9IjE2MCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDwhLS0gQXhpcyAtLT4KICA8bGluZSB4MT0iMzAiIHkxPSIxMzAiIHgyPSIyMDAiIHkyPSIxMzAiIHN0cm9rZT0iI2Q5ZDlkOSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPg==)
+![Colorful Icon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNjRiM2Y0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSI2MCIgY3k9IjYwIiByPSI1MCIgZmlsbD0idXJsKCNncmFkKSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cGF0aCBkPSJNNDAgNjAgTDU1IDc1IEw4NSA0NSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjYiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=)
 
-**错误处理测试：**
-![不存在的本地SVG](./missing-local.svg)
-![不存在的网络SVG](https://example.com/404.svg)
+**URL 编码格式：**
 
-### 6.6 内联测试
+![URL Encoded SVG](data:image/svg+xml,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2260%22%20height%3D%2260%22%20fill%3D%22%23f97316%22%20rx%3D%2210%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2250%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%22%20font-size%3D%2220%22%20fill%3D%22white%22%3EURL%3C/text%3E%3C/svg%3E)
 
-**问题演示：应该内联显示但显示为独立块的 SVG**
+**复杂 Data URL SVG：**
 
-这是一段文本，中间插入小图标 ![信息图标](./small-icon.svg) 应该与文本在同一行。
+![Chart SVG](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjI1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNmOWZhZmMiIHJ4PSI4Ii8+CiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSIxMjUiIHk9IjIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMzc0MTUxIj5TYWxlcyBEYXRhPC90ZXh0PgogIDwhLS0gQmFycyAtLT4KICA8cmVjdCB4PSI0MCIgeT0iMTAwIiB3aWR0aD0iMjAiIGhlaWdodD0iMzAiIGZpbGw9IiMzNGQ5OTkiLz4KICA8cmVjdCB4PSI4MCIgeT0iODAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI1MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDxyZWN0IHg9IjEyMCIgeT0iNjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI3MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDxyZWN0IHg9IjE2MCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzM0ZDk5OSIvPgogIDwhLS0gQXhpcyAtLT4KICA8bGluZSB4MT0iMzAiIHkxPSIxMzAiIHgyPSIyMDAiIHkyPSIxMzAiIHN0cm9rZT0iI2Q5ZDlkOSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPg==)
 
-测试各种小尺寸本地 SVG 文件的内联显示：
-- 信息图标：![信息](./small-icon.svg) 16x16 像素 
-- 成功图标：![成功](./check-icon.svg) 18x18 像素
-- 箭头图标：![箭头](./arrow-down.svg) 14x14 像素
+### 8.3 内联 SVG 测试
 
-这些小图标应该像普通的表情符号一样在文本行中显示，而不是作为独立的块级元素。
+这是文本中的小图标 ![info](./small-icon.svg) 应该内联显示。
 
-**混合文本测试：**
-请注意：在操作成功时会显示 ![成功](./check-icon.svg) 图标，点击 ![箭头](./arrow-down.svg) 展开更多信息，需要帮助时查看 ![信息](./small-icon.svg) 提示。
+测试多个小图标：![check](./check-icon.svg) ![arrow](./arrow-down.svg) ![info](./small-icon.svg)
+
+**混合文本：**
+操作成功时显示 ![success](./check-icon.svg) 图标，点击 ![arrow](./arrow-down.svg) 展开详情，查看 ![info](./small-icon.svg) 获取帮助。
 
 ---
 
-## 7. 错误处理和边界情况
+## 9. HTML 混合内容
 
-### 7.1 错误的 Mermaid 语法
+### 9.1 简单 HTML 元素
+
+<div style="padding: 15px; background: #f0f9ff; border-left: 4px solid #0284c7; margin: 10px 0;">
+  <strong>💡 提示：</strong>这是一个使用 HTML 编写的提示框，测试 HTML 和 Markdown 混合使用。
+</div>
+
+<div style="display: flex; gap: 10px; margin: 20px 0;">
+  <div style="flex: 1; padding: 15px; background: #dcfce7; border-radius: 8px;">
+    <h4 style="margin: 0 0 8px 0; color: #166534;">✅ 成功</h4>
+    <p style="margin: 0; font-size: 14px;">操作已成功完成</p>
+  </div>
+  <div style="flex: 1; padding: 15px; background: #fee2e2; border-radius: 8px;">
+    <h4 style="margin: 0 0 8px 0; color: #991b1b;">❌ 错误</h4>
+    <p style="margin: 0; font-size: 14px;">发生了一个错误</p>
+  </div>
+</div>
+
+### 9.2 复杂布局示例
+
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin: 20px 0;">
+  <h3 style="margin: 0 0 15px 0;">扩展功能特性</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+      <strong>⚡ 高性能</strong><br/>
+      双层缓存架构
+    </div>
+    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+      <strong>🎨 美观</strong><br/>
+      现代化UI设计
+    </div>
+    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+      <strong>🔒 安全</strong><br/>
+      Manifest V3
+    </div>
+  </div>
+</div>
+
+### 9.3 数据展示
+
+<table style="border-collapse: collapse; margin: 20px 0;">
+  <thead>
+    <tr style="background: #f3f4f6;">
+      <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb;">模块</th>
+      <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb;">功能</th>
+      <th style="padding: 12px; text-align: center; border: 1px solid #e5e7eb;">状态</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">Content Script</td>
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">Markdown 渲染</td>
+      <td style="padding: 12px; text-align: center; border: 1px solid #e5e7eb;">✅</td>
+    </tr>
+    <tr style="background: #f9fafb;">
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">Offscreen Document</td>
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">图表转换</td>
+      <td style="padding: 12px; text-align: center; border: 1px solid #e5e7eb;">✅</td>
+    </tr>
+    <tr>
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">Cache Manager</td>
+      <td style="padding: 12px; border: 1px solid #e5e7eb;">性能优化</td>
+      <td style="padding: 12px; text-align: center; border: 1px solid #e5e7eb;">✅</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 10. 边界测试
+
+### 10.1 错误的 Mermaid 语法
+
 ```mermaid
 invalid syntax here
 this should show an error message
 ```
 
-### 7.2 错误的数学公式
+### 10.2 错误的数学公式
+
 $$
 \invalid{command}
+\undefined{function}
 $$
 
-### 7.3 空代码块测试
+### 10.3 空代码块
+
 ```javascript
 ```
 
@@ -894,72 +1235,38 @@ $$
 ```
 
 ```
-无语言指定的空代码块
 ```
 
-### 7.4 极端情况测试
-**超长文本行测试：**
-这是一个非常长的文本行，用于测试文本的自动换行和布局处理能力，包含中文字符和English characters以及123数字和!@#$%^&*()特殊符号，目的是验证在各种复杂情况下的渲染效果。
+### 10.4 极端情况
 
-**嵌套格式测试：**
-***~~`这是嵌套的格式化文本`~~***
+**超长文本行：**
+这是一个非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的文本行，用于测试文本的自动换行和布局处理能力，包含中文字符和English characters以及1234567890数字和!@#$%^&*()特殊符号。
 
-**Unicode字符测试：**
-数学符号：∑ ∏ ∫ ∞ ± × ÷ √ ∆ ∇ ∂ ∈ ∉ ⊂ ⊃ ∪ ∩
-箭头符号：← → ↑ ↓ ↔ ⇐ ⇒ ⇑ ⇓ ⇔
-其他符号：© ® ™ € £ ¥ § ¶ † ‡ • ‰ ‱
+**嵌套格式：**
+***~~`这是嵌套的格式化文本，包含粗体、斜体、删除线和代码`~~***
 
----
+**复杂 Unicode：**
+- 数学符号：∑ ∏ ∫ ∞ ± × ÷ √ ∆ ∇ ∂ ∈ ∉ ⊂ ⊃ ∪ ∩ ≈ ≠ ≤ ≥
+- 箭头符号：← → ↑ ↓ ↔ ↖ ↗ ↘ ↙ ⇐ ⇒ ⇑ ⇓ ⇔ ⇕
+- 货币符号：$ € £ ¥ ₹ ₽ ¢ ₩ ₪ ₱ ฿ ₴
+- 其他符号：© ® ™ § ¶ † ‡ • ° ‰ ‱ ℃ ℉ ℓ № ℮
 
-## 8. 测试总结
+**错误的图片链接：**
+![不存在的本地图片](./nonexistent.png)
+![404网络图片](https://example.com/404.png)
 
-### 8.1 功能覆盖清单
+**空引用：**
+> 
 
-这个测试文档全面覆盖了Markdown Viewer Extension的所有核心功能：
+**空列表项：**
+- 
+- 
+  - 
 
-#### ✅ 基础功能
-- **Markdown语法** - 标题、文本格式、链接、图片
-- **扩展语法** - GFM（GitHub Flavored Markdown）
-- **换行处理** - remark-breaks 自动换行功能
-- **列表处理** - 标准和非标准列表的规范化
-- **表格渲染** - 基础和对齐表格
-- **特殊字符** - Unicode、转义字符、Emoji
-
-#### ✅ 高级功能  
-- **代码语法高亮** - JavaScript、Python、Java、SQL、HTML/CSS、Shell
-- **数学公式** - KaTeX行内和块级公式渲染
-- **Mermaid图表** - 流程图、序列图、甘特图转PNG
-- **SVG处理** - SVG图片转PNG渲染
-- **HTML混合** - 复杂HTML组件和布局
-
-#### ✅ 系统功能
-- **缓存机制** - 自动缓存渲染结果
-- **错误处理** - 优雅处理各种异常情况
-- **响应式设计** - 支持不同屏幕尺寸
-- **目录生成** - 自动生成文档导航
-
-### 8.2 使用说明
-
-1. **测试方法**：在Chrome浏览器中安装扩展后，打开此测试文件
-2. **验证要点**：
-   - 代码块是否有正确的语法高亮
-   - 数学公式是否正确渲染
-   - Mermaid图表是否转换为PNG图片
-   - 页面是否有目录导航
-   - 响应式布局是否正常
-
-3. **性能测试**：观察大型文档的加载和渲染速度
-
-### 8.3 已知限制
-
-- SVG处理仅支持本地文件和公共网络资源
-- Mermaid渲染需要网络连接（首次加载）
-- 复杂HTML布局在某些浏览器中可能有差异
+**表格边界：**
+| | |
+|-|-|
+| | |
 
 ---
 
-通过这个综合测试文档，您可以全面验证Markdown Viewer Extension的功能完整性和稳定性。
-
-**测试版本**: v1.0.0  
-**测试日期**: 2025年11月7日  
-**支持的浏览器**: Chrome 120+
