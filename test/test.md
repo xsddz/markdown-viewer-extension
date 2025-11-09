@@ -635,6 +635,10 @@ async function fetchData<T>(url: string): Promise<T> {
 
 箭头扩展测试：$\xleftarrow{R}$。
 
+取模公式测试：$V' = T' \bmod 2^{31}$。
+
+同余符号测试：$V' \equiv T' \pmod{p}$。
+
 ### 6.2 块级公式
 
 **二次方程求根公式：**
