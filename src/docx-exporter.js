@@ -29,6 +29,34 @@ import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
 import { visit } from 'unist-util-visit';
 import { uploadInChunks, abortUpload } from './upload-manager.js';
+import hljs from 'highlight.js/lib/common';
+
+const DOCX_HIGHLIGHT_COLOR_MAP = {
+  keyword: 'D73A49',
+  built_in: '6F42C1',
+  literal: '005CC5',
+  number: '005CC5',
+  string: '032F62',
+  title: '6F42C1',
+  attr: '6F42C1',
+  comment: '6A737D',
+  meta: '005CC5',
+  params: '24292E',
+  symbol: 'E36209',
+  type: '6F42C1',
+  addition: '22863A',
+  deletion: 'B31D28',
+  quote: '22863A',
+  regexp: '032F62',
+  selector_tag: '22863A',
+  selector_id: '005CC5',
+  selector_class: '6F42C1',
+  variable: 'E36209',
+  property: '005CC5',
+};
+
+const DOCX_DEFAULT_CODE_COLOR = '24292E';
+const ZERO_WIDTH_SPACE = '\u200B';
 
 /**
  * Main class for exporting Markdown to DOCX
@@ -41,6 +69,136 @@ class DocxExporter {
     this.mathJaxInitialized = false; // Track MathJax initialization
     this.baseUrl = null; // Base URL for resolving relative paths
     this.pendingBlockSpacing = 0; // Spacing to apply before the next block-level element
+  }
+
+  getHighlightColor(classList) {
+    if (!classList) {
+      return null;
+    }
+
+    const tokens = Array.isArray(classList)
+      ? classList
+      : typeof classList === 'string'
+        ? classList.split(/\s+/)
+        : Array.from(classList);
+
+    for (const rawToken of tokens) {
+      if (!rawToken) {
+        continue;
+      }
+
+      const token = rawToken.startsWith('hljs-') ? rawToken.slice(5) : rawToken;
+      if (!token) {
+        continue;
+      }
+
+      const normalized = token.replace(/-/g, '_');
+      const color = DOCX_HIGHLIGHT_COLOR_MAP[normalized];
+      if (color) {
+        return color;
+      }
+    }
+
+    return null;
+  }
+
+  applyCharacterWrap(text) {
+    if (!text) {
+      return text;
+    }
+
+    return text.replace(/([^\r\n])/g, `$1${ZERO_WIDTH_SPACE}`);
+  }
+
+  appendCodeTextRuns(text, runs, color) {
+    if (text === '') {
+      return;
+    }
+
+    const segments = text.split('\n');
+    const lastIndex = segments.length - 1;
+    const appliedColor = color || DOCX_DEFAULT_CODE_COLOR;
+
+    segments.forEach((segment, index) => {
+      if (segment.length > 0) {
+        const wrappedSegment = this.applyCharacterWrap(segment);
+        runs.push(new TextRun({
+          text: wrappedSegment,
+          font: 'Consolas',
+          size: 24,
+          preserve: true,
+          color: appliedColor,
+        }));
+      }
+
+      if (index < lastIndex) {
+        runs.push(new TextRun({ text: '', break: 1 }));
+      }
+    });
+  }
+
+  collectHighlightedRuns(node, runs, inheritedColor = DOCX_DEFAULT_CODE_COLOR) {
+    if (!node) {
+      return;
+    }
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      this.appendCodeTextRuns(node.nodeValue || '', runs, inheritedColor);
+      return;
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
+
+    const elementColor = this.getHighlightColor(node.classList) || inheritedColor;
+    const nextColor = elementColor || inheritedColor;
+
+    node.childNodes.forEach((child) => {
+      this.collectHighlightedRuns(child, runs, nextColor);
+    });
+  }
+
+  getHighlightedRunsForCode(code, language) {
+    const runs = [];
+
+    if (!code) {
+      runs.push(new TextRun({
+        text: '',
+        font: 'Consolas',
+        size: 24,
+        preserve: true,
+        color: DOCX_DEFAULT_CODE_COLOR,
+      }));
+      return runs;
+    }
+
+    let highlightResult = null;
+
+    try {
+      if (language && hljs.getLanguage(language)) {
+        highlightResult = hljs.highlight(code, {
+          language,
+          ignoreIllegals: true,
+        });
+      } else {
+        highlightResult = hljs.highlightAuto(code);
+      }
+    } catch (error) {
+      console.warn('Highlight error:', error);
+    }
+
+    if (highlightResult && highlightResult.value) {
+      const container = document.createElement('div');
+      container.innerHTML = highlightResult.value;
+      this.collectHighlightedRuns(container, runs, DOCX_DEFAULT_CODE_COLOR);
+    }
+
+    if (runs.length === 0) {
+      this.appendCodeTextRuns(code, runs, DOCX_DEFAULT_CODE_COLOR);
+    }
+
+    return runs;
   }
 
   /**
@@ -1207,20 +1365,7 @@ class DocxExporter {
       return await this.convertMermaidDiagram(node.value);
     }
 
-    const lines = node.value.split('\n');
-    const runs = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      runs.push(new TextRun({
-        text: lines[i],
-        font: 'Consolas', // Monospace font matching CSS
-        size: 28, // 14pt = 28 half-points (same as body text)
-      }));
-
-      if (i < lines.length - 1) {
-        runs.push(new TextRun({ text: '', break: 1 }));
-      }
-    }
+    const runs = this.getHighlightedRunsForCode(node.value ?? '', node.lang);
 
     return new Paragraph({
       children: runs,
