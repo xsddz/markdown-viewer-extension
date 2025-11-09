@@ -618,6 +618,10 @@ ${truncatedMarkup}`;
             return;
           }
 
+          if (/^(?:<br\s*\/?>(?:\s|&nbsp;)*)+$/i.test(htmlContent)) {
+            return;
+          }
+
           const sanitizedHtml = sanitizeRenderedHtml(htmlContent);
           if (!sanitizedHtml || sanitizedHtml.replace(/\s+/g, '').length <= 0) {
             return;

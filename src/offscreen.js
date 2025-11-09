@@ -144,11 +144,22 @@ async function renderHtmlToPng(htmlContent, targetWidth = 1200) {
     }
 
     const container = document.getElementById('html-container');
-    container.style.cssText = `display: block; position: relative; background: white; padding: 0; margin: 0; width: ${targetWidth}px;`;
+    const normalizedTargetWidth = Number.isFinite(targetWidth) && targetWidth > 0 ? targetWidth : null;
+    container.style.cssText = 'display: inline-block; position: relative; background: white; padding: 0; margin: 0; width: auto;';
     container.innerHTML = htmlContent;
 
-    // Wait for rendering
-    container.offsetHeight; // Force reflow
+    // Give the layout engine a tick in the offscreen document context
+    container.offsetHeight;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const rect = container.getBoundingClientRect();
+  const widthFallback = normalizedTargetWidth || 1;
+  const rawWidth = rect.width || container.scrollWidth || container.offsetWidth || widthFallback;
+    const measuredWidth = Math.ceil(rawWidth);
+  const captureWidth = measuredWidth > 0 ? measuredWidth : widthFallback;
+
+    container.style.width = `${captureWidth}px`;
+    container.style.display = 'block';
 
     // Use html2canvas to capture
     const canvas = await html2canvas(container, {
@@ -157,6 +168,8 @@ async function renderHtmlToPng(htmlContent, targetWidth = 1200) {
       logging: false,
       useCORS: true,
       allowTaint: true,
+  width: captureWidth,
+  windowWidth: Math.max(captureWidth, normalizedTargetWidth || 0),
       x: 0,
       y: 0,
       scrollX: 0,
