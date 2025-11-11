@@ -22,7 +22,7 @@
     }
 
     .tab-wrapper {
-      height: 520px;
+      height: 530px;
       overflow-y: scroll;
       scrollbar-gutter: stable;
       -webkit-overflow-scrolling: touch;
@@ -33,18 +33,33 @@
 
     .header {
       padding: 20px;
-      text-align: center;
       border-bottom: 1px solid #d9e1ef;
       background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header img.logo {
+      width: 48px;
+      height: 48px;
     }
 
     h1 {
       font-size: 24px;
-      margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      margin: 0 0 5px 0;
     }
 
     .version {
@@ -318,8 +333,13 @@
 <body>
   <div class="tab-wrapper">
     <div class="header">
-      <h1 data-i18n="popup_title"><span class="icon">📝</span>Markdown Viewer</h1>
-      <div class="version" data-i18n="popup_version_label" data-version="1.0.0">Version 1.0.0</div>
+      <div class="header-content">
+        <img src="../icons/icon48.png" alt="Logo" class="logo">
+        <div class="header-text">
+          <h1 data-i18n="popup_title">Markdown Viewer</h1>
+          <div class="version" data-i18n="popup_version_label" data-version="1.0.0">Version 1.0.0</div>
+        </div>
+      </div>
     </div>
     <div class="tabs">
       <button class="tab active" data-tab="overview" data-i18n="tab_overview"></button>
