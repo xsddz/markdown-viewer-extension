@@ -123,55 +123,72 @@ async function initializeContentScript() {
    * @param {number} scrollPosition - The saved scroll position to restore
    */
   function restoreScrollPosition(scrollPosition) {
-    // Function to perform the scroll restoration
-    const performScroll = () => {
-      window.scrollTo(0, scrollPosition);
-      const currentPosition = window.scrollY || window.pageYOffset;
-
-      // Clear saved scroll position from background script after restoration
+    if (scrollPosition === 0) {
+      // For position 0, just scroll to top immediately
+      window.scrollTo(0, 0);
       chrome.runtime.sendMessage({
         type: 'clearScrollPosition',
         url: document.location.href
       });
+      return;
+    }
 
-      // If the position wasn't set correctly (and it's not supposed to be at top), try again after a short delay
-      if (scrollPosition > 0 && Math.abs(currentPosition - scrollPosition) > 10) {
-        setTimeout(() => {
-          window.scrollTo(0, scrollPosition);
-        }, 100);
+    // Clear saved position
+    chrome.runtime.sendMessage({
+      type: 'clearScrollPosition',
+      url: document.location.href
+    });
+
+    // Debounced scroll adjustment
+    let scrollTimer = null;
+    const adjustmentTimeout = 5000; // Stop adjusting after 5 seconds
+    const startTime = Date.now();
+
+    const adjustScroll = () => {
+      if (Date.now() - startTime > adjustmentTimeout) {
+        return;
       }
+
+      // Cancel previous timer if exists
+      if (scrollTimer) {
+        clearTimeout(scrollTimer);
+      }
+
+      // Schedule scroll after 100ms of no changes
+      scrollTimer = setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 100);
     };
 
-    // Use requestAnimationFrame to ensure DOM is fully rendered
-    requestAnimationFrame(() => {
-      // For non-zero positions, wait for images to load to ensure accurate positioning
-      if (scrollPosition > 0) {
-        // Check if there are images that might still be loading
-        const images = document.querySelectorAll('#markdown-content img');
-        const imagePromises = Array.from(images).map(img => {
-          if (img.complete) {
-            return Promise.resolve();
-          }
-          return new Promise((resolve) => {
-            img.addEventListener('load', resolve);
-            img.addEventListener('error', resolve); // Resolve even on error
-            // Timeout after 3 seconds to prevent infinite waiting
-            setTimeout(resolve, 3000);
-          });
-        });
+    // Trigger initial scroll
+    adjustScroll();
 
-        if (imagePromises.length > 0) {
-          Promise.all(imagePromises).then(() => {
-            performScroll();
-          });
-        } else {
-          performScroll();
-        }
-      } else {
-        // For position 0 (page top), scroll immediately without waiting for images
-        performScroll();
+    // Monitor images loading
+    const images = document.querySelectorAll('#markdown-content img');
+    images.forEach(img => {
+      if (!img.complete) {
+        img.addEventListener('load', adjustScroll, { once: true });
+        img.addEventListener('error', adjustScroll, { once: true });
       }
     });
+
+    // Monitor async placeholders being replaced
+    const observer = new MutationObserver(() => {
+      adjustScroll();
+    });
+
+    observer.observe(document.getElementById('markdown-content'), {
+      childList: true,
+      subtree: true
+    });
+
+    // Stop observing after timeout
+    setTimeout(() => {
+      observer.disconnect();
+      if (scrollTimer) {
+        clearTimeout(scrollTimer);
+      }
+    }, adjustmentTimeout);
   }
 
   /**
