@@ -31,8 +31,8 @@
     "message": "Markdown 뷰어",
     "description": "팝업 제목"
   },
-  "popup_version_label": {
-    "message": "버전 {0}",
+    "popup_version_label": {
+    "message": "\ubc84\uc804 {0}",
     "description": "헤더에 확장 버전을 표시"
   },
   "overview_features_title": {

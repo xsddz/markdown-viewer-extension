@@ -32,7 +32,7 @@
     "description": "Título del popup"
   },
   "popup_version_label": {
-    "message": "Versión {0}",
+    "message": "Versi\u00f3n {0}",
     "description": "Muestra la versión de la extensión en el encabezado"
   },
   "overview_features_title": {

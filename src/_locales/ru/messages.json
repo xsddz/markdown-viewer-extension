@@ -31,8 +31,8 @@
     "message": "Просмотрщик Markdown",
     "description": "Заголовок всплывающего окна"
   },
-  "popup_version_label": {
-    "message": "Версия {0}",
+    "popup_version_label": {
+    "message": "\u0412\u0435\u0440\u0441\u0438\u044f {0}",
     "description": "Отображает версию расширения"
   },
   "overview_features_title": {

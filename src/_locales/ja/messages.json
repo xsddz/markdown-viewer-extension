@@ -32,7 +32,7 @@
     "description": "ポップアップのタイトル"
   },
   "popup_version_label": {
-    "message": "バージョン {0}",
+    "message": "\u30d0\u30fc\u30b8\u30e7\u30f3 {0}",
     "description": "ヘッダーに拡張機能のバージョンを表示"
   },
   "overview_features_title": {
