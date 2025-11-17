@@ -2,7 +2,7 @@
 
 **Write in Markdown, export to perfect Word with one click.**
 
-*Completely Free · Local Processing · 18+ Professional Themes · 8 Languages Support*
+*Completely Free · Local Processing · 18+ Professional Themes · 23 Languages Support*
 
 ---
 
@@ -69,11 +69,19 @@ Export as native Word format, fully editable. **Not an image, but a real equatio
 
 ### Team Collaboration: Weekly Reports, 1 Hour → 1 Minute
 
-**Before:** Copy content → Set format → Adjust lists → Add styling → Screenshots = **1 hour weekly**
+**Before:** Copy content → Set format → Adjust lists → Add styling → Excel charts + screenshots = **1 hour weekly**
 
 **Now:** Open file → Choose theme → Click download = **1 minute**
 
-Choose "Business" theme for professional look. **Save 59 minutes weekly.**
+Choose "Business" theme, Vega-Lite data charts auto-convert to high-res images, professional look. **Save 59 minutes weekly.**
+
+**Business use cases:**
+- 📊 Sales trends (line charts)
+- 📈 Market share comparison (bar charts)
+- 🎯 KPI achievement (gauges)
+- 📉 Cost analysis (stacked charts)
+
+Let data speak, generate professional reports with one click.
 
 ---
 
@@ -81,13 +89,20 @@ Choose "Business" theme for professional look. **Save 59 minutes weekly.**
 
 ### 1. Automatic Diagram Conversion
 
-All Mermaid types · SVG images · Complex HTML tables
+**Mermaid Diagrams** · **Vega/Vega-Lite Data Charts** · SVG images · Complex HTML tables
+
+**Mermaid:** Flowcharts, sequence diagrams, class diagrams, state diagrams → Technical docs, architecture design  
+**Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics
 
 **Time comparison:** Complex sequence diagram (10 objects)
 - Traditional tools: Draw 30min + Modify 20min + Adjust 10min + Export 5min = **65 minutes**
 - Markdown Viewer: Write code 5min + Modify 30sec + Export 1sec = **6 minutes**
 
-**Save 59 minutes — time for two coffee breaks.**
+**Business scenario:** Quarterly sales report (5 bar charts)
+- Excel charting + screenshots: Select data 15min + Format 10min + Screenshot 5min = **30 minutes**
+- Vega-Lite: JSON data 2min + One-click export = **3 minutes**
+
+**Precise, professional, reusable.**
 
 ### 2. Perfect Formula Conversion
 
@@ -179,7 +194,7 @@ Document with 50 Mermaid diagrams:
 
 ### Full Markdown Syntax Support
 
-Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · LaTeX formulas · HTML · GFM extensions
+Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · LaTeX formulas · HTML · GFM extensions
 
 ### 18 Themes
 
@@ -190,9 +205,9 @@ Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists
 **Chinese:** Songti · Heiti · Mixed  
 **Creative:** Typewriter · Sakura · Water · Minimal
 
-### 8 Interface Languages
+### 23 Interface Languages
 
-Simplified Chinese · English · Deutsch · Español · Français · 日本語 · 한국어 · Русский
+Simplified Chinese · Traditional Chinese · English · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Português (PT) · Polski · Русский · 日本語 · 한국어 · ไทย · Tiếng Việt · हिन्दी · Bahasa Indonesia · Dansk · Suomi · Norsk · Svenska · Türkçe
 
 ---
 
@@ -219,7 +234,7 @@ Simplified Chinese · English · Deutsch · Español · Français · 日本語 �
 A: Yes. Standard .docx format, math formulas are editable, not images.
 
 **Q: Which diagrams are supported?**  
-A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.) + SVG auto-conversion.
+A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts + SVG auto-conversion.
 
 **Q: Is there a file size limit?**  
 A: No limit. Smart cache, documents with 100+ diagrams open instantly.
@@ -253,6 +268,12 @@ A: Currently Word only, PDF planned. You can export to Word then save as PDF.
 
 **Q: Which theme suits me?**  
 A: Business reports → Business · Academic papers → Academic · Technical docs → Technical · Chinese docs → Songti/Mixed
+
+**Q: What's the difference between Vega and Mermaid?**  
+A: **Mermaid** is for flowcharts, architecture diagrams, and other schematic diagrams; **Vega/Vega-Lite** is for data visualization like sales charts, financial reports, and other data-driven business charts. They complement each other for different scenarios.
+
+**Q: How to create charts with Vega-Lite?**  
+A: Use ````vega-lite` code block in Markdown with JSON format chart specification. See [Vega-Lite official examples](https://vega.github.io/vega-lite/examples/).
 
 ---
 
