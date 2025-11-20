@@ -372,9 +372,8 @@ ${truncatedMarkup}`;
             element.removeAttribute(attr.name);
           }
         } else if (attrName === 'href' || attrName === 'xlink:href') {
-          if (attr.value && attr.value.trim()) {
-            element.setAttribute(attr.name, '#');
-          } else {
+          // For href attributes, validate URL safety
+          if (!isSafeUrl(attr.value)) {
             element.removeAttribute(attr.name);
           }
         } else if (!isSafeUrl(attr.value)) {
