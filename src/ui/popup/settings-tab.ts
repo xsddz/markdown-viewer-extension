@@ -563,7 +563,7 @@ export function createSettingsTabManager({
         langBtn.textContent = getLocaleDisplayCode(newLocale);
 
         // Update active state in dropdown
-        dropdownContent.querySelectorAll('.language-option').forEach(opt => {
+        dropdownContent.querySelectorAll<HTMLElement>('.language-option').forEach(opt => {
           opt.classList.toggle('active', opt.dataset.locale === newLocale);
         });
 
