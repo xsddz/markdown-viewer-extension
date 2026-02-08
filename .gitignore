@@ -25,7 +25,8 @@ package-lock.json
 pubspec.lock
 
 # Build output
-dist/
+dist/*
+!dist/obsidian/
 dist.*
 /mobile/build/
 
