@@ -25,9 +25,7 @@ package-lock.json
 pubspec.lock
 
 # Build output
-dist/*
-!dist/obsidian/
-dist.*
+dist
 /mobile/build/
 
 # Logs

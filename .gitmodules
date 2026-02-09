@@ -1,3 +1,0 @@
-[submodule "dist/obsidian"]
-	path = dist/obsidian
-	url = git@github.com:markdown-viewer/obsidian.git
