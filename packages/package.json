@@ -1,0 +1,53 @@
+{
+  "name": "markdown-viewer-sdk",
+  "version": "2.0.0",
+  "description": "Markdown processing library with diagram rendering and DOCX export",
+  "type": "module",
+  "main": "./dist/index.esm.js",
+  "module": "./dist/index.esm.js",
+  "browser": "./dist/index.iife.min.js",
+  "unpkg": "./dist/index.iife.min.js",
+  "jsdelivr": "./dist/index.iife.min.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "browser": "./dist/index.iife.min.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "types": "tsc src/index.ts --declaration --emitDeclarationOnly --outDir dist --skipLibCheck"
+  },
+  "keywords": [
+    "markdown",
+    "parser",
+    "renderer",
+    "mermaid",
+    "katex",
+    "vega",
+    "graphviz",
+    "docx",
+    "gfm",
+    "github-flavored-markdown"
+  ],
+  "author": {
+    "name": "Markdown Viewer Team",
+    "url": "https://github.com/markdown-viewer"
+  },
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markdown-viewer/markdown-viewer-extension.git",
+    "directory": "packages"
+  },
+  "homepage": "https://github.com/markdown-viewer/markdown-viewer-extension#readme",
+  "bugs": {
+    "url": "https://github.com/markdown-viewer/markdown-viewer-extension/issues"
+  }
+}

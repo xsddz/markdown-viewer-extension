@@ -72,3 +72,6 @@ app.*.map.json
 src/fonts/*.woff2
 src/fonts/*.ttf
 !src/fonts/.gitkeep
+
+# SDK auto-generated files
+packages/src/themes-data.ts

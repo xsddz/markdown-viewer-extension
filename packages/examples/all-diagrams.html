@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<!--
+  markdown-viewer-sdk - All Diagrams Demo
+  
+  展示所有支持的图表类型渲染
+  - Mermaid: 流程图、时序图、饼图、类图等
+  - Vega-Lite: 柱状图、折线图、散点图等
+  - Graphviz DOT: 有向图、流程图
+  - JSON Canvas: Obsidian 画布格式
+  - Infographic: 信息图
+  
+  运行: cd packages && npx serve . && open http://localhost:3000/examples/all-diagrams.html
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>markdown-viewer-sdk - All Diagrams Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 { margin-bottom: 10px; color: #333; }
+    .subtitle { color: #666; margin-bottom: 20px; }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 10px 20px;
+      border: none;
+      background: #e2e8f0;
+      color: #4a5568;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab:hover { background: #cbd5e0; }
+    .tab.active { background: #4a5568; color: white; }
+    
+    .tab-content {
+      display: none;
+      background: white;
+      border-radius: 0 8px 8px 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .tab-content.active { display: block; }
+    
+    /* Demo Section */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    .demo-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .demo-header {
+      background: #f5f5f5;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .demo-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    .demo-status.success { background: #c6f6d5; color: #22543d; }
+    .demo-status.error { background: #fed7d7; color: #9b2c2c; }
+    .demo-status.loading { background: #fef3c7; color: #92400e; }
+    
+    .demo-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .demo-source {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      max-height: 150px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .demo-output {
+      padding: 16px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+    .demo-output svg { max-width: 100%; height: auto; }
+    .demo-output img { max-width: 100%; height: auto; }
+    .demo-output .vega-embed { width: 100%; }
+    .error-msg { color: #c53030; font-size: 14px; }
+    
+    /* Status bar */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      padding: 12px 20px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-bar.error { background: #fed7d7; }
+    
+    @media (max-width: 768px) {
+      .demo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>All Diagrams Demo</h1>
+  <p class="subtitle">使用 markdown-viewer-sdk 渲染所有支持的图表类型</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="mermaid">Mermaid</button>
+    <button class="tab" data-tab="vega">Vega-Lite</button>
+    <button class="tab" data-tab="graphviz">Graphviz</button>
+    <button class="tab" data-tab="canvas">Canvas</button>
+    <button class="tab" data-tab="infographic">Infographic</button>
+    <button class="tab" data-tab="drawio">DrawIO</button>
+    <button class="tab" data-tab="svg">SVG</button>
+  </div>
+
+  <!-- Mermaid Tab -->
+  <div id="tab-mermaid" class="tab-content active">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>流程图 Flowchart</span>
+          <span class="demo-status loading" data-status="mermaid-flow">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-mermaid-flow">flowchart LR
+    A[开始] --> B{判断}
+    B -->|是| C[执行A]
+    B -->|否| D[执行B]
+    C --> E[结束]
+    D --> E</pre>
+          <div class="demo-output" id="out-mermaid-flow"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>时序图 Sequence</span>
+          <span class="demo-status loading" data-status="mermaid-seq">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-mermaid-seq">sequenceDiagram
+    participant 用户
+    participant SDK
+    participant 渲染器
+    用户->>SDK: toHtml(markdown)
+    SDK->>渲染器: render(code)
+    渲染器-->>SDK: SVG
+    SDK-->>用户: HTML</pre>
+          <div class="demo-output" id="out-mermaid-seq"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>饼图 Pie</span>
+          <span class="demo-status loading" data-status="mermaid-pie">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-mermaid-pie">pie title 技术栈分布
+    "TypeScript" : 45
+    "JavaScript" : 30
+    "CSS" : 15
+    "Other" : 10</pre>
+          <div class="demo-output" id="out-mermaid-pie"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>甘特图 Gantt</span>
+          <span class="demo-status loading" data-status="mermaid-gantt">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-mermaid-gantt">gantt
+    title SDK 开发计划
+    dateFormat YYYY-MM-DD
+    section 设计
+        需求分析 :done, a1, 2024-01-01, 7d
+        架构设计 :done, a2, after a1, 5d
+    section 开发
+        核心功能 :active, b1, after a2, 14d
+        测试     :b2, after b1, 7d</pre>
+          <div class="demo-output" id="out-mermaid-gantt"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vega-Lite Tab -->
+  <div id="tab-vega" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>柱状图 Bar Chart</span>
+          <span class="demo-status loading" data-status="vega-bar">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-vega-bar">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 300, "height": 180,
+  "data": {
+    "values": [
+      {"month": "Jan", "sales": 100},
+      {"month": "Feb", "sales": 150},
+      {"month": "Mar", "sales": 120},
+      {"month": "Apr", "sales": 180}
+    ]
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "month", "type": "nominal"},
+    "y": {"field": "sales", "type": "quantitative"}
+  }
+}</pre>
+          <div class="demo-output" id="out-vega-bar"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>折线图 Line Chart</span>
+          <span class="demo-status loading" data-status="vega-line">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-vega-line">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 300, "height": 180,
+  "data": {
+    "values": [
+      {"x": 1, "y": 10}, {"x": 2, "y": 30},
+      {"x": 3, "y": 25}, {"x": 4, "y": 45},
+      {"x": 5, "y": 35}, {"x": 6, "y": 55}
+    ]
+  },
+  "mark": "line",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"}
+  }
+}</pre>
+          <div class="demo-output" id="out-vega-line"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>散点图 Scatter Plot</span>
+          <span class="demo-status loading" data-status="vega-scatter">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-vega-scatter">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 300, "height": 180,
+  "data": {
+    "values": [
+      {"x": 1, "y": 5, "c": "A"}, {"x": 2, "y": 8, "c": "A"},
+      {"x": 3, "y": 3, "c": "B"}, {"x": 4, "y": 7, "c": "B"},
+      {"x": 5, "y": 9, "c": "A"}, {"x": 6, "y": 4, "c": "B"}
+    ]
+  },
+  "mark": "point",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"},
+    "color": {"field": "c", "type": "nominal"}
+  }
+}</pre>
+          <div class="demo-output" id="out-vega-scatter"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>面积图 Area Chart</span>
+          <span class="demo-status loading" data-status="vega-area">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-vega-area">{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 300, "height": 180,
+  "data": {
+    "values": [
+      {"x": 1, "y": 20}, {"x": 2, "y": 35},
+      {"x": 3, "y": 30}, {"x": 4, "y": 50},
+      {"x": 5, "y": 45}, {"x": 6, "y": 60}
+    ]
+  },
+  "mark": "area",
+  "encoding": {
+    "x": {"field": "x", "type": "quantitative"},
+    "y": {"field": "y", "type": "quantitative"}
+  }
+}</pre>
+          <div class="demo-output" id="out-vega-area"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphviz Tab -->
+  <div id="tab-graphviz" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>有向图 Digraph</span>
+          <span class="demo-status loading" data-status="dot-digraph">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-dot-digraph">digraph G {
+    rankdir=LR;
+    node [shape=box, style=filled, fillcolor=lightblue];
+    Start -> Parse;
+    Parse -> Validate;
+    Validate -> Process;
+    Process -> Render;
+    Render -> End;
+}</pre>
+          <div class="demo-output" id="out-dot-digraph"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>无向图 Graph</span>
+          <span class="demo-status loading" data-status="dot-graph">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-dot-graph">graph G {
+    layout=neato;
+    node [shape=circle, style=filled, fillcolor=lightyellow];
+    A -- B -- C;
+    B -- D;
+    C -- E;
+    D -- E -- F;
+}</pre>
+          <div class="demo-output" id="out-dot-graph"></div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>状态机 State Machine</span>
+          <span class="demo-status loading" data-status="dot-state">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-dot-state">digraph StateMachine {
+    rankdir=LR;
+    node [shape=circle];
+    start [shape=point];
+    end [shape=doublecircle];
+    
+    start -> idle;
+    idle -> running [label="start"];
+    running -> paused [label="pause"];
+    paused -> running [label="resume"];
+    running -> end [label="stop"];
+}</pre>
+          <div class="demo-output" id="out-dot-state"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas Tab -->
+  <div id="tab-canvas" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card" style="grid-column: 1 / -1;">
+        <div class="demo-header">
+          <span>JSON Canvas (Obsidian 格式)</span>
+          <span class="demo-status loading" data-status="canvas-demo">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-canvas-demo">{
+  "nodes": [
+    {"id": "1", "type": "text", "text": "项目启动", "x": 0, "y": 0, "width": 100, "height": 60, "color": "4"},
+    {"id": "2", "type": "text", "text": "需求分析", "x": 150, "y": 0, "width": 100, "height": 60, "color": "5"},
+    {"id": "3", "type": "text", "text": "设计开发", "x": 300, "y": 0, "width": 100, "height": 60, "color": "6"},
+    {"id": "4", "type": "text", "text": "测试上线", "x": 450, "y": 0, "width": 100, "height": 60, "color": "3"}
+  ],
+  "edges": [
+    {"id": "e1", "fromNode": "1", "fromSide": "right", "toNode": "2", "toSide": "left"},
+    {"id": "e2", "fromNode": "2", "fromSide": "right", "toNode": "3", "toSide": "left"},
+    {"id": "e3", "fromNode": "3", "fromSide": "right", "toNode": "4", "toSide": "left"}
+  ]
+}</pre>
+          <div class="demo-output" id="out-canvas-demo" style="min-height: 300px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infographic Tab -->
+  <div id="tab-infographic" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>列表卡片 List Card</span>
+          <span class="demo-status loading" data-status="info-list">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-info-list">infographic list-grid-badge-card
+data
+  title Project Statistics
+  desc Overview of key metrics
+  items
+    - label Total Users
+      desc Active monthly users
+    - label Downloads
+      desc Total app downloads
+    - label Rating
+      desc Average user rating</pre>
+          <div class="demo-output" id="out-info-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DrawIO Tab -->
+  <div id="tab-drawio" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>DrawIO 流程图 Diagram</span>
+          <span class="demo-status loading" data-status="drawio-demo">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-drawio-demo" style="max-height: 200px; overflow: auto;">&lt;mxfile&gt;&lt;diagram name="Simple" id="simple-demo"&gt;&lt;mxGraphModel dx="800" dy="400" grid="1"&gt;&lt;root&gt;&lt;mxCell id="0"/&gt;&lt;mxCell id="1" parent="0"/&gt;&lt;mxCell id="2" value="Start" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"&gt;&lt;mxGeometry x="100" y="100" width="80" height="40" as="geometry"/&gt;&lt;/mxCell&gt;&lt;mxCell id="3" value="Process" style="rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"&gt;&lt;mxGeometry x="220" y="100" width="80" height="40" as="geometry"/&gt;&lt;/mxCell&gt;&lt;mxCell id="4" value="End" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"&gt;&lt;mxGeometry x="340" y="100" width="80" height="40" as="geometry"/&gt;&lt;/mxCell&gt;&lt;mxCell id="e1" style="endArrow=classic;" edge="1" source="2" target="3" parent="1"&gt;&lt;mxGeometry relative="1" as="geometry"/&gt;&lt;/mxCell&gt;&lt;mxCell id="e2" style="endArrow=classic;" edge="1" source="3" target="4" parent="1"&gt;&lt;mxGeometry relative="1" as="geometry"/&gt;&lt;/mxCell&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;</pre>
+          <div class="demo-output" id="out-drawio-demo" style="min-height: 200px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG Tab -->
+  <div id="tab-svg" class="tab-content">
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-header">
+          <span>SVG 图像 SVG Image</span>
+          <span class="demo-status loading" data-status="svg-demo">加载中...</span>
+        </div>
+        <div class="demo-body">
+          <pre class="demo-source" id="src-svg-demo">&lt;svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150"&gt;
+  &lt;rect width="400" height="150" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/&gt;
+  &lt;text x="200" y="40" text-anchor="middle" font-size="20" font-weight="bold" fill="#0369a1"&gt;SVG 渲染测试&lt;/text&gt;
+  &lt;circle cx="100" cy="100" r="30" fill="#22c55e"/&gt;
+  &lt;rect x="160" y="70" width="60" height="60" fill="#f97316"/&gt;
+  &lt;polygon points="300,70 330,130 270,130" fill="#8b5cf6"/&gt;
+  &lt;text x="200" y="140" text-anchor="middle" font-size="12" fill="#64748b"&gt;圆形 • 矩形 • 三角形&lt;/text&gt;
+&lt;/svg&gt;</pre>
+          <div class="demo-output" id="out-svg-demo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="status-bar">
+    <span id="status-text">正在初始化 SDK...</span>
+    <span id="status-version"></span>
+  </div>
+
+  <!-- SDK -->
+  <script src="../dist/index.iife.js"></script>
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    const statusBar = document.getElementById('status-bar');
+    const statusText = document.getElementById('status-text');
+    const statusVersion = document.getElementById('status-version');
+
+    function updateStatus(id, status, text) {
+      const el = document.querySelector(`[data-status="${id}"]`);
+      if (el) {
+        el.textContent = text;
+        el.className = 'demo-status ' + status;
+      }
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById('out-' + id);
+      if (el) {
+        el.innerHTML = `<span class="error-msg">${msg}</span>`;
+      }
+      updateStatus(id, 'error', '失败');
+    }
+
+    // Render functions
+    async function renderMermaid(id, code) {
+      try {
+        const uniqueId = `mermaid-${id}-${Date.now()}`;
+        const { svg } = await mermaid.render(uniqueId, code);
+        document.getElementById('out-' + id).innerHTML = svg;
+        updateStatus(id, 'success', '成功');
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderVega(id, spec) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'vega-lite');
+        if (!renderer) throw new Error('Vega-Lite renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(spec, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderDot(id, code) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'dot');
+        if (!renderer) throw new Error('DOT renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(code, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderCanvas(id, json) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'canvas');
+        if (!renderer) throw new Error('Canvas renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(json, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderInfoGraphic(id, code) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'infographic');
+        if (!renderer) throw new Error('Infographic renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(code, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderDrawio(id, code) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'drawio');
+        if (!renderer) throw new Error('DrawIO renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(code, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function renderSvg(id, code) {
+      try {
+        const renderer = MarkdownViewer.renderers.find(r => r.type === 'svg');
+        if (!renderer) throw new Error('SVG renderer not found');
+        
+        await renderer.initialize(null);
+        const result = await renderer.render(code, null);
+        
+        if (result && result.base64) {
+          document.getElementById('out-' + id).innerHTML = 
+            `<img src="data:image/${result.format || 'png'};base64,${result.base64}" />`;
+          updateStatus(id, 'success', '成功');
+        } else {
+          throw new Error('No result from renderer');
+        }
+      } catch (e) {
+        showError(id, e.message);
+      }
+    }
+
+    async function initApp() {
+      if (typeof MarkdownViewer === 'undefined') {
+        statusText.textContent = '❌ SDK 加载失败 - 请使用 HTTP 服务器';
+        statusBar.className = 'status-bar error';
+        return;
+      }
+
+      statusVersion.textContent = `SDK v${MarkdownViewer.VERSION}`;
+      statusText.textContent = '⏳ 正在加载外部库...';
+
+      try {
+        // Initialize SDK (loads Mermaid)
+        await MarkdownViewer.init();
+        statusText.textContent = '⏳ 正在渲染图表...';
+
+        // Mermaid diagrams
+        const mermaidDemos = ['mermaid-flow', 'mermaid-seq', 'mermaid-pie', 'mermaid-gantt'];
+        for (const id of mermaidDemos) {
+          const code = document.getElementById('src-' + id).textContent;
+          await renderMermaid(id, code);
+        }
+
+        // Vega-Lite charts
+        const vegaDemos = ['vega-bar', 'vega-line', 'vega-scatter', 'vega-area'];
+        for (const id of vegaDemos) {
+          const spec = document.getElementById('src-' + id).textContent;
+          await renderVega(id, spec);
+        }
+
+        // Graphviz DOT
+        const dotDemos = ['dot-digraph', 'dot-graph', 'dot-state'];
+        for (const id of dotDemos) {
+          const code = document.getElementById('src-' + id).textContent;
+          await renderDot(id, code);
+        }
+
+        // Canvas
+        const canvasCode = document.getElementById('src-canvas-demo').textContent;
+        await renderCanvas('canvas-demo', canvasCode);
+
+        // Infographic
+        const infoCode = document.getElementById('src-info-list').textContent;
+        await renderInfoGraphic('info-list', infoCode);
+
+        // DrawIO
+        const drawioCode = document.getElementById('src-drawio-demo').textContent;
+        await renderDrawio('drawio-demo', drawioCode);
+
+        // SVG
+        const svgCode = document.getElementById('src-svg-demo').textContent;
+        await renderSvg('svg-demo', svgCode);
+
+        statusText.textContent = '✅ 所有图表渲染完成';
+      } catch (e) {
+        statusText.textContent = '⚠️ 部分图表渲染失败: ' + e.message;
+        console.error(e);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>

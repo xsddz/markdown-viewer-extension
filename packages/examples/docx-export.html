@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<!--
+  markdown-viewer-sdk - DOCX Export Demo
+  
+  运行: cd packages && npx serve . && open http://localhost:3000/examples/docx-export.html
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>markdown-viewer-sdk - DOCX Export Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 { margin-bottom: 10px; color: #333; }
+    .subtitle { color: #666; margin-bottom: 20px; }
+    
+    .panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #4a5568;
+      color: white;
+      padding: 12px 16px;
+      font-weight: 600;
+    }
+    .panel-content {
+      padding: 16px;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+    }
+    textarea:focus { outline: 2px solid #4a5568; }
+    
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #4a5568;
+      color: white;
+    }
+    .btn-primary:hover { background: #2d3748; }
+    .btn-primary:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+    .btn-secondary:hover { background: #cbd5e0; }
+    
+    .preview {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 16px;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .preview h1, .preview h2, .preview h3 { margin: 1em 0 0.5em; }
+    .preview h1:first-child { margin-top: 0; }
+    .preview p { margin: 0.5em 0; }
+    .preview code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .preview pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    .preview pre code { background: none; }
+    .preview ul, .preview ol {
+      margin: 0.5em 0;
+      padding-left: 2em;
+    }
+    .preview table { border-collapse: collapse; margin: 1em 0; }
+    .preview th, .preview td { border: 1px solid #ddd; padding: 8px 12px; }
+    .preview th { background: #f5f5f5; }
+    
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .status.success { background: #e8f5e9; color: #2e7d32; }
+    .status.error { background: #ffebee; color: #c62828; }
+    .status.info { background: #e3f2fd; color: #1565c0; }
+    
+    .api-note {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .api-note code {
+      background: rgba(0,0,0,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>DOCX Export Demo</h1>
+  <p class="subtitle">使用 DocxExporter 将 Markdown 导出为 Word 文档</p>
+
+  <div class="api-note">
+    <strong>API 说明：</strong>
+    <code>await MarkdownViewer.exportToDocx(markdown, filename)</code><br>
+    使用内置默认主题，支持所有 Markdown 特性
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Markdown 输入</div>
+    <div class="panel-content">
+      <textarea id="input"># 示例文档
+
+这是一个使用 **markdown-viewer-sdk** 生成的 Word 文档示例。
+
+## 功能特性
+
+SDK 支持以下 Markdown 特性：
+
+- **粗体** 和 *斜体* 文本
+- `行内代码` 和代码块
+- 有序和无序列表
+- 表格和引用块
+
+## 代码示例
+
+```javascript
+import { DocxExporter } from 'markdown-viewer-sdk';
+
+const exporter = new DocxExporter();
+await exporter.exportToDocx(markdown, 'document.docx');
+```
+
+## 数据表格
+
+| 功能 | 支持状态 |
+|------|----------|
+| 标题 | ✅ |
+| 列表 | ✅ |
+| 表格 | ✅ |
+| 代码 | ✅ |
+
+> 💡 提示：导出的文档可以在 Microsoft Word、Google Docs 或其他兼容软件中打开。
+
+---
+
+*由 markdown-viewer-sdk 导出*</textarea>
+      
+      <div class="buttons">
+        <button id="exportBtn" class="btn-primary" onclick="exportDocx()">
+          📄 导出为 DOCX
+        </button>
+        <button class="btn-secondary" onclick="previewHtml()">
+          👁️ 预览 HTML
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">HTML 预览</div>
+    <div class="panel-content">
+      <div id="preview" class="preview">
+        <span style="color: #888; font-style: italic;">点击"预览 HTML"按钮查看渲染结果</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="status" class="status info">
+    准备就绪，等待操作...
+  </div>
+
+  <script src="../dist/index.iife.js"></script>
+  <script>
+    const input = document.getElementById('input');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let currentHtml = '';
+
+    // Check library loaded
+    if (typeof MarkdownViewer === 'undefined') {
+      status.innerHTML = '❌ 加载失败 - 请使用 HTTP 服务器<br><code>cd packages && npx serve .</code>';
+      status.className = 'status error';
+      exportBtn.disabled = true;
+    } else {
+      status.textContent = `✅ SDK 已加载 (v${MarkdownViewer.VERSION})`;
+      status.className = 'status success';
+    }
+
+    async function previewHtml() {
+      try {
+        const markdown = input.value;
+        const startTime = performance.now();
+        
+        currentHtml = await MarkdownViewer.toHtml(markdown);
+        
+        const endTime = performance.now();
+        preview.innerHTML = currentHtml;
+        status.textContent = `✅ HTML 渲染完成 (${(endTime - startTime).toFixed(1)}ms)`;
+        status.className = 'status success';
+      } catch (error) {
+        preview.innerHTML = `<span style="color: red;">错误: ${error.message}</span>`;
+        status.textContent = `❌ 渲染失败: ${error.message}`;
+        status.className = 'status error';
+      }
+    }
+
+    async function exportDocx() {
+      exportBtn.disabled = true;
+      exportBtn.textContent = '⏳ 导出中...';
+      
+      try {
+        const markdown = input.value;
+        const startTime = performance.now();
+        
+        // 使用简化的导出 API（自动使用内置默认主题）
+        await MarkdownViewer.exportToDocx(markdown, 'markdown-export.docx', (current, total) => {
+          status.textContent = `⏳ 导出中... ${Math.round(current / total * 100)}%`;
+        });
+        
+        const endTime = performance.now();
+        status.textContent = `✅ DOCX 导出成功！(${(endTime - startTime).toFixed(1)}ms) - 文件已下载`;
+        status.className = 'status success';
+      } catch (error) {
+        status.textContent = `❌ 导出失败: ${error.message}`;
+        status.className = 'status error';
+        console.error('Export error:', error);
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = '📄 导出为 DOCX';
+      }
+    }
+
+    // Auto preview on load
+    previewHtml();
+  </script>
+</body>
+</html>

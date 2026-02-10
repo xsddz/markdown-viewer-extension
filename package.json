@@ -4,6 +4,9 @@
   "version": "2.0.0",
   "description": "Markdown to perfect Word in one click — Mermaid, Vega, drawio, canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing.",
   "type": "module",
+  "workspaces": [
+    "packages"
+  ],
   "scripts": {
     "build:chrome": "node chrome/build.js",
     "build:firefox": "node firefox/build.js",
@@ -15,6 +18,7 @@
     "build:ios:sim": "node mobile/build-app.js ios:sim",
     "build:android": "node mobile/build-app.js android",
     "build:macos": "node mobile/build-app.js macos",
+    "build:sdk": "npm run build -w markdown-viewer-sdk",
     "app:init": "cd mobile && flutter pub get",
     "typecheck": "npx tsc --noEmit"
   },
