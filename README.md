@@ -1,6 +1,6 @@
 # ![Markdown Viewer](icons/icon48.png) Markdown Viewer
 
-[English](docs/readme/README.en.md) · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/readme/README.zh-TW.md) · [Русский](docs/readme/README.ru.md) · [日本語](docs/readme/README.ja.md) · [हिन्दी](docs/readme/README.hi.md) · [한국어](docs/readme/README.ko.md) · [Deutsch](docs/readme/README.de.md) · [Português (Brasil)](docs/readme/README.pt-BR.md) · [Português (Portugal)](docs/readme/README.pt-PT.md) · [Nederlands](docs/readme/README.nl.md) · [Українська](docs/readme/README.uk.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Беларуская](docs/readme/README.be.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Bahasa Indonesia](docs/readme/README.id.md) · [Español](docs/readme/README.es.md) · [ไทย](docs/readme/README.th.md) · [Svenska](docs/readme/README.sv.md) · [Türkçe](docs/readme/README.tr.md) · [Eesti](docs/readme/README.et.md) · [Bahasa Melayu](docs/readme/README.ms.md) · [Polski](docs/readme/README.pl.md) · [Suomi](docs/readme/README.fi.md) · [Lietuvių](docs/readme/README.lt.md) · [Norsk](docs/readme/README.no.md) · [Dansk](docs/readme/README.da.md)
+[English](https://github.com/markdown-viewer/docs/blob/main/readme/README.en.md) · [简体中文](https://github.com/markdown-viewer/docs/blob/main/readme/README.zh-CN.md) · [繁體中文](https://github.com/markdown-viewer/docs/blob/main/readme/README.zh-TW.md) · [Русский](https://github.com/markdown-viewer/docs/blob/main/readme/README.ru.md) · [日本語](https://github.com/markdown-viewer/docs/blob/main/readme/README.ja.md) · [हिन्दी](https://github.com/markdown-viewer/docs/blob/main/readme/README.hi.md) · [한국어](https://github.com/markdown-viewer/docs/blob/main/readme/README.ko.md) · [Deutsch](https://github.com/markdown-viewer/docs/blob/main/readme/README.de.md) · [Português (Brasil)](https://github.com/markdown-viewer/docs/blob/main/readme/README.pt-BR.md) · [Português (Portugal)](https://github.com/markdown-viewer/docs/blob/main/readme/README.pt-PT.md) · [Nederlands](https://github.com/markdown-viewer/docs/blob/main/readme/README.nl.md) · [Українська](https://github.com/markdown-viewer/docs/blob/main/readme/README.uk.md) · [Tiếng Việt](https://github.com/markdown-viewer/docs/blob/main/readme/README.vi.md) · [Беларуская](https://github.com/markdown-viewer/docs/blob/main/readme/README.be.md) · [Français](https://github.com/markdown-viewer/docs/blob/main/readme/README.fr.md) · [Italiano](https://github.com/markdown-viewer/docs/blob/main/readme/README.it.md) · [Bahasa Indonesia](https://github.com/markdown-viewer/docs/blob/main/readme/README.id.md) · [Español](https://github.com/markdown-viewer/docs/blob/main/readme/README.es.md) · [ไทย](https://github.com/markdown-viewer/docs/blob/main/readme/README.th.md) · [Svenska](https://github.com/markdown-viewer/docs/blob/main/readme/README.sv.md) · [Türkçe](https://github.com/markdown-viewer/docs/blob/main/readme/README.tr.md) · [Eesti](https://github.com/markdown-viewer/docs/blob/main/readme/README.et.md) · [Bahasa Melayu](https://github.com/markdown-viewer/docs/blob/main/readme/README.ms.md) · [Polski](https://github.com/markdown-viewer/docs/blob/main/readme/README.pl.md) · [Suomi](https://github.com/markdown-viewer/docs/blob/main/readme/README.fi.md) · [Lietuvių](https://github.com/markdown-viewer/docs/blob/main/readme/README.lt.md) · [Norsk](https://github.com/markdown-viewer/docs/blob/main/readme/README.no.md) · [Dansk](https://github.com/markdown-viewer/docs/blob/main/readme/README.da.md)
 
 **Markdown to perfect Word in one click — Mermaid, Vega, drawio, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
@@ -11,7 +11,7 @@
 - **Chrome / Chromium:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 - **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/
 - **VS Code:** https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension · [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
-- **Mobile (iOS/Android):** See [Mobile App](docs/platforms/mobile.md)
+- **Mobile (iOS/Android):** See [Mobile App](https://github.com/markdown-viewer/docs/blob/main/platforms/mobile.md)
 
 ---
 
@@ -50,12 +50,12 @@ Markdown Viewer is not just a Chrome extension anymore — it's a unified render
 
 | Platform | Best for | Docs |
 |---|---|---|
-| **Chrome Extension** | Reading local/online Markdown in browser + export | [docs/platforms/chrome.md](docs/platforms/chrome.md) |
-| **Firefox Extension** | Firefox users, same core features | [docs/platforms/firefox.md](docs/platforms/firefox.md) |
-| **VS Code Extension** | Writing + live preview + export inside editor | [docs/platforms/vscode.md](docs/platforms/vscode.md) |
-| **Mobile App** | Reading/export on the go (iOS/Android) | [docs/platforms/mobile.md](docs/platforms/mobile.md) |
+| **Chrome Extension** | Reading local/online Markdown in browser + export | [chrome.md](https://github.com/markdown-viewer/docs/blob/main/platforms/chrome.md) |
+| **Firefox Extension** | Firefox users, same core features | [firefox.md](https://github.com/markdown-viewer/docs/blob/main/platforms/firefox.md) |
+| **VS Code Extension** | Writing + live preview + export inside editor | [vscode.md](https://github.com/markdown-viewer/docs/blob/main/platforms/vscode.md) |
+| **Mobile App** | Reading/export on the go (iOS/Android) | [mobile.md](https://github.com/markdown-viewer/docs/blob/main/platforms/mobile.md) |
 
-See the full feature matrix: [docs/platforms/platform-comparison.md](docs/platforms/platform-comparison.md)
+See the full feature matrix: [platform-comparison.md](https://github.com/markdown-viewer/docs/blob/main/platforms/platform-comparison.md)
 
 ## 💫 See It in Action
 
@@ -204,9 +204,9 @@ Pick one platform and install:
 1. Enable local file access in your browser extension settings
 2. ✅ Now you can double-click to open local `.md` files
 
-**VS Code:** Open any `.md` file → run the preview command (see [VS Code Extension](docs/platforms/vscode.md))
+**VS Code:** Open any `.md` file → run the preview command (see [VS Code Extension](https://github.com/markdown-viewer/docs/blob/main/platforms/vscode.md))
 
-**Mobile:** Use file picker or open from cloud drive (details in [Mobile App](docs/platforms/mobile.md))
+**Mobile:** Use file picker or open from cloud drive (details in [Mobile App](https://github.com/markdown-viewer/docs/blob/main/platforms/mobile.md))
 
 **Not needed if:**
 - Only viewing online docs (GitHub, blogs, etc.)
