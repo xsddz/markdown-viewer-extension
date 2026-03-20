@@ -35,6 +35,7 @@ import { createSearchPanel, type SearchPanel, type HighlightMatch, type SearchOp
 // Declare global types for VSCode-specific variables
 declare global {
   var VSCODE_WEBVIEW_BASE_URI: string;
+  var VSCODE_NONCE: string;
   var VSCODE_CONFIG: Record<string, unknown>;
 }
 
@@ -249,6 +250,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     await initSlidevViewer({
       rawContent: content,
       container: slidevContainer,
+      mode: 'list',
       renderDiagram: (type, code) =>
         platform.renderer.render(type, code).then((r) => ({
           base64: r.base64!,

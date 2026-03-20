@@ -332,6 +332,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     await initSlidevViewer({
       rawContent: content,
       container: slidevContainer,
+      mode: 'list',
       renderDiagram: (type, code) =>
         platform.renderer.render(type, code).then((r) => ({
           base64: r.base64!,

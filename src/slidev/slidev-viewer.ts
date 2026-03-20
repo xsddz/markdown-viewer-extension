@@ -22,6 +22,8 @@ export interface SlidevViewerOptions {
   getShellSource: () => Promise<string>
   /** Called after slides are parsed with the presentation title */
   onParsed?: (info: { title: string; slideCount: number }) => void
+  /** Display mode: 'presentation' (single slide with nav) or 'list' (all slides scrollable) */
+  mode?: 'presentation' | 'list'
 }
 
 // ── Public API ─────────────────────────────────────────────────────────
@@ -31,7 +33,7 @@ export interface SlidevViewerOptions {
  * Parses slides, creates iframe, and renders diagrams asynchronously.
  */
 export async function initSlidevViewer(options: SlidevViewerOptions): Promise<void> {
-  const { rawContent, container, renderDiagram, getShellSource, onParsed } = options
+  const { rawContent, container, renderDiagram, getShellSource, onParsed, mode = 'presentation' } = options
 
   if (!rawContent.trim()) return
 
@@ -67,7 +69,7 @@ export async function initSlidevViewer(options: SlidevViewerOptions): Promise<vo
       if (event.data?.type === 'SLIDEV_SHELL_READY') {
         window.removeEventListener('message', onMessage)
         iframe.contentWindow?.postMessage(
-          { type: 'SLIDEV_INIT', slides, configs },
+          { type: 'SLIDEV_INIT', slides, configs, mode },
           '*',
         )
         iframe.focus()

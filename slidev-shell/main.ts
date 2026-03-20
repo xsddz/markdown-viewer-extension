@@ -9,13 +9,14 @@
 
 import { getTheme } from './theme-loader'
 import { bootstrap } from './bootstrap'
+import { bootstrapList } from './bootstrap-list'
 import { initSlides } from './shims/slides'
 
 /** Wait for SLIDEV_INIT message from host, or use pre-injected data */
-function waitForData(): Promise<void> {
+function waitForData(): Promise<{ mode?: string }> {
   // If data already injected (standalone / direct usage), proceed
   if ((window as any).__SLIDEV__?.slides?.length) {
-    return Promise.resolve()
+    return Promise.resolve({})
   }
 
   return new Promise((resolve) => {
@@ -26,7 +27,7 @@ function waitForData(): Promise<void> {
           slides: event.data.slides,
           configs: event.data.configs || {},
         }
-        resolve()
+        resolve({ mode: event.data.mode })
       }
     })
     // Signal readiness to the host content script
@@ -64,7 +65,7 @@ function injectGoogleFonts(fonts: { sans?: string; mono?: string; serif?: string
 }
 
 async function main() {
-  await waitForData()
+  const { mode } = await waitForData()
 
   const themeName = (window as any).__SLIDEV__?.configs?.theme || 'default'
   const theme = getTheme(themeName)
@@ -76,6 +77,13 @@ async function main() {
   }
 
   initSlides()
+
+  if (mode === 'list') {
+    await bootstrapList()
+    setupDiagramListener()
+    return
+  }
+
   await bootstrap()
 
   // On touch devices, enable tap-to-navigate (right half → next, left half → prev).
@@ -85,6 +93,11 @@ async function main() {
     setupTapNavigation()
   }
 
+  setupDiagramListener()
+}
+
+/** Listen for async diagram render results from host and replace placeholders */
+function setupDiagramListener() {
   // Store diagram render results; replace placeholders when they appear in DOM.
   // Slidev only mounts the current slide, so placeholders may not exist yet.
   const diagramResults = new Map<string, string>()
