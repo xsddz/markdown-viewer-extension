@@ -145,8 +145,8 @@ async function detectAndInject(): Promise<void> {
     return;
   }
 
-  // Markdown files are always supported
-  if (matchedExt === '.md' || matchedExt === '.markdown') {
+  // Markdown files (including .slides.md) are always supported
+  if (matchedExt === '.md' || matchedExt === '.markdown' || matchedExt === '.slides.md') {
     injectContentScript();
     return;
   }

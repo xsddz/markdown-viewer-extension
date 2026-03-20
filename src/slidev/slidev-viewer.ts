@@ -1,0 +1,108 @@
+/**
+ * Slidev Viewer — Shared integration module
+ *
+ * Embeds the Slidev shell inside the main viewer HTML,
+ * sharing the platform API for rendering, caching, and storage.
+ * Used by both Chrome and VS Code viewer entry points.
+ */
+
+import { parseSlides } from './slidev-core'
+import type { DiagramJob } from './slidev-core'
+
+// ── Types ──────────────────────────────────────────────────────────────
+
+export interface SlidevViewerOptions {
+  /** Raw markdown content of the .slides.md file */
+  rawContent: string
+  /** Container element to place the Slidev iframe in */
+  container: HTMLElement
+  /** Render a diagram via the platform renderer (with built-in caching) */
+  renderDiagram: (type: string, code: string) => Promise<{ base64: string; width: number; height: number }>
+  /** Provide the shell iframe source */
+  getShellSource: () => Promise<string>
+  /** Called after slides are parsed with the presentation title */
+  onParsed?: (info: { title: string; slideCount: number }) => void
+}
+
+// ── Public API ─────────────────────────────────────────────────────────
+
+/**
+ * Initialize Slidev presentation viewer inside the given container.
+ * Parses slides, creates iframe, and renders diagrams asynchronously.
+ */
+export async function initSlidevViewer(options: SlidevViewerOptions): Promise<void> {
+  const { rawContent, container, renderDiagram, getShellSource, onParsed } = options
+
+  if (!rawContent.trim()) return
+
+  // Parse slides with async diagram placeholders
+  const { slides, configs, diagramJobs } = parseSlides(
+    rawContent,
+    (id) =>
+      `<div data-diagram-id="${id}" style="display:flex;align-items:center;justify-content:center;padding:20px;opacity:.5;font-size:13px">\u23F3 Loading diagram\u2026</div>`,
+  )
+
+  // Notify caller about parsed slides
+  const title =
+    slides[0]?.frontmatter?.title || configs.slidesTitle || 'Untitled'
+  onParsed?.({ title, slideCount: slides.length })
+
+  // Prepare container for full-screen iframe
+  container.innerHTML = ''
+  container.style.cssText =
+    'margin:0;padding:0;width:100%;height:100%;overflow:hidden'
+
+  // Create iframe
+  const shellUrl = await getShellSource()
+  const iframe = document.createElement('iframe')
+  iframe.id = 'slidev-frame'
+  iframe.allow = 'fullscreen'
+  iframe.style.cssText = 'width:100%;height:100%;border:none'
+  iframe.src = shellUrl
+  container.appendChild(iframe)
+
+  // Wait for shell ready then send slide data
+  await new Promise<void>((resolve) => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'SLIDEV_SHELL_READY') {
+        window.removeEventListener('message', onMessage)
+        iframe.contentWindow?.postMessage(
+          { type: 'SLIDEV_INIT', slides, configs },
+          '*',
+        )
+        iframe.focus()
+        resolve()
+      }
+    }
+    window.addEventListener('message', onMessage)
+  })
+
+  // Render diagrams asynchronously — results streamed to shell via postMessage
+  renderDiagramsAsync(iframe, diagramJobs, renderDiagram)
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────
+
+function renderDiagramsAsync(
+  iframe: HTMLIFrameElement,
+  diagramJobs: DiagramJob[],
+  renderDiagram: (type: string, code: string) => Promise<{ base64: string; width: number; height: number }>,
+) {
+  for (const job of diagramJobs) {
+    renderDiagram(job.renderType, job.code)
+      .then(({ base64, width, height }) => {
+        const html = `<div class="slidev-diagram" style="display:flex;justify-content:center;margin:8px 0"><img src="data:image/png;base64,${base64}" width="${width}" height="${height}" style="max-width:100%;height:auto" /></div>`
+        iframe.contentWindow?.postMessage(
+          { type: 'SLIDEV_UPDATE_DIAGRAM', id: job.id, html },
+          '*',
+        )
+      })
+      .catch(() => {
+        const html = `<div class="slidev-diagram-error" style="padding:8px;border:1px solid #e53e3e;border-radius:4px;color:#e53e3e;font-size:12px">Diagram unavailable</div>`
+        iframe.contentWindow?.postMessage(
+          { type: 'SLIDEV_UPDATE_DIAGRAM', id: job.id, html },
+          '*',
+        )
+      })
+  }
+}

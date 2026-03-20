@@ -6,6 +6,7 @@ import { platform, bridge } from './api-impl';
 import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
+import { initSlidevViewer } from '../../../src/slidev/slidev-viewer';
 import type { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
@@ -39,6 +40,7 @@ let currentThemeId = 'default'; // Current theme ID (loaded via shared loadAndAp
 const currentTaskManagerRef: { current: AsyncTaskManager | null } = { current: null };
 let currentZoomLevel = 1; // Store current zoom level for applying after content render
 let scrollSyncController: ScrollSyncController | null = null; // Scroll sync controller
+let isSlidevMode = false; // Whether currently showing a Slidev presentation
 
 // Create plugin renderer using shared utility
 const pluginRenderer = createPluginRenderer(platform);
@@ -236,6 +238,58 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
   if (!container) {
     console.error('[Mobile] Content container not found');
     return;
+  }
+
+  // ── Slidev mode: .slides.md files render as presentations ────────────
+  if (newFilename.endsWith('.slides.md')) {
+    isSlidevMode = true;
+
+    // Hide normal markdown wrapper, use body as container
+    const wrapper = document.getElementById('markdown-wrapper');
+    if (wrapper) wrapper.style.display = 'none';
+
+    document.documentElement.style.cssText = 'margin:0;padding:0;width:100%;height:100%;overflow:hidden';
+    document.body.style.cssText = 'margin:0;padding:0;width:100%;height:100%;overflow:hidden';
+
+    // Reuse or create a slidev container
+    let slidevContainer = document.getElementById('slidev-container');
+    if (!slidevContainer) {
+      slidevContainer = document.createElement('div');
+      slidevContainer.id = 'slidev-container';
+      slidevContainer.style.cssText = 'width:100%;height:100%';
+      document.body.appendChild(slidevContainer);
+    }
+
+    await initSlidevViewer({
+      rawContent: content,
+      container: slidevContainer,
+      renderDiagram: (type, code) =>
+        platform.renderer.render(type, code).then((r) => ({
+          base64: r.base64!,
+          width: r.width,
+          height: r.height,
+        })),
+      getShellSource: async () => {
+        // Use platform.resource.fetch() — native fetch doesn't work reliably
+        // with Flutter assets in WKWebView (macOS/iOS)
+        const html = await platform.resource.fetch('slidev-shell-inline.html');
+        const blob = new Blob([html], { type: 'text/html' });
+        return URL.createObjectURL(blob);
+      },
+    });
+    return;
+  }
+
+  // ── Normal markdown mode ─────────────────────────────────────────────
+  // Restore normal layout if switching from slidev mode
+  if (isSlidevMode) {
+    isSlidevMode = false;
+    const slidevContainer = document.getElementById('slidev-container');
+    if (slidevContainer) slidevContainer.remove();
+    const wrapper = document.getElementById('markdown-wrapper');
+    if (wrapper) wrapper.style.display = '';
+    document.documentElement.style.cssText = '';
+    document.body.style.cssText = '';
   }
 
   // Render using shared flow

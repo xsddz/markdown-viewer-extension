@@ -261,6 +261,33 @@ function copyAssets() {
   copyDirectory('icons', path.join(outdir, 'icons'));
   console.log('  • icons');
 
+  // Create self-contained Slidev Shell HTML
+  // Single JS + single CSS from Vite build, inlined into one HTML file.
+  // Loaded by main webview as a blob URL iframe.
+  const slidevVscodeDir = path.join(projectRoot, 'dist', 'slidev-shell-vscode');
+  if (fs.existsSync(slidevVscodeDir)) {
+    const shellJs = fs.readFileSync(path.join(slidevVscodeDir, 'slidev-shell.js'), 'utf8');
+    const shellCss = fs.readFileSync(path.join(slidevVscodeDir, 'assets', 'style.css'), 'utf8');
+    const slidevInlineHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slidev Shell</title>
+  <style>${shellCss}</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" nonce="__SLIDEV_NONCE__">${shellJs}<\/script>
+</body>
+</html>`;
+
+    fs.writeFileSync(path.join(outdir, 'webview', 'slidev-shell-inline.html'), slidevInlineHtml);
+    console.log('  • slidev-shell-inline.html');
+  } else {
+    console.warn('  ⚠️  dist/slidev-shell-vscode not found — run "cd slidev-shell && npx vite build --config vite.vscode.config.ts" first');
+  }
+
   // Copy settings panel styles
   if (fs.existsSync('vscode/src/webview/settings-panel.css')) {
     fs.copyFileSync('vscode/src/webview/settings-panel.css', path.join(outdir, 'webview', 'settings-panel.css'));

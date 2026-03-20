@@ -13,6 +13,7 @@ import Localization, { DEFAULT_SETTING_LOCALE } from '../../../src/utils/localiz
 import themeManager from '../../../src/utils/theme-manager';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import { wrapFileContent } from '../../../src/utils/file-wrapper';
+import { initSlidevViewer } from '../../../src/slidev/slidev-viewer';
 
 import type { PluginRenderer, RendererThemeConfig, PlatformAPI } from '../../../src/types/index';
 
@@ -166,7 +167,38 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
 
   // Get the raw markdown content
   const rawContent = document.body.textContent || '';
-  
+
+  // ── Slidev mode: .slides.md files render as presentations ────────────
+  if (/\.slides\.md$/i.test(currentUrl)) {
+    const runtime = typeof browser !== 'undefined' ? browser : chrome;
+
+    // Remove preload style that hides page content (opacity: 0 !important)
+    document.getElementById('markdown-viewer-preload')?.remove();
+
+    // Full-screen layout for presentations
+    document.body.innerHTML = '';
+    document.body.style.cssText = 'margin:0;padding:0;width:100%;height:100%;overflow:hidden;opacity:1';
+    document.documentElement.style.cssText = 'margin:0;padding:0;width:100%;height:100%;overflow:hidden';
+
+    await initSlidevViewer({
+      rawContent,
+      container: document.body,
+      renderDiagram: (type, code) =>
+        platform.renderer.render(type, code).then((r) => ({
+          base64: r.base64!,
+          width: r.width,
+          height: r.height,
+        })),
+      getShellSource: async () =>
+        runtime.runtime.getURL('slidev-shell/index.html'),
+      onParsed: ({ title }) => {
+        document.title = title;
+        saveToHistory(platform);
+      },
+    });
+    return;
+  }
+
   // Wrap non-markdown file content (e.g., mermaid, vega) in markdown format
   const rawMarkdown = wrapFileContent(rawContent, currentUrl);
 

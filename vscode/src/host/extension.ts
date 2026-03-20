@@ -248,9 +248,13 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Scroll sync: Editor → Preview (when editor visible range changes)
+  // Disabled for .slides.md files — Slidev handles its own navigation
   context.subscriptions.push(
     vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
       if (isSupportedDocument(event.textEditor.document)) {
+        // Skip scroll sync for Slidev presentation files
+        if (event.textEditor.document.fileName.endsWith('.slides.md')) return;
+
         // Always save the position for this document
         const visibleRanges = event.visibleRanges;
         if (visibleRanges.length > 0) {

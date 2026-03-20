@@ -111,6 +111,14 @@ export const createBuildConfig = () => {
                 log: '📦 Copied libs/mermaid.min.js'
               });
 
+              // Copy pre-built Slidev Shell assets
+              if (fs.existsSync('dist/slidev-shell')) {
+                fileCopies.push(...copyDirectory('dist/slidev-shell', 'dist/chrome/slidev-shell'));
+                console.log('📦 Copied dist/slidev-shell → dist/chrome/slidev-shell');
+              } else {
+                console.warn('⚠️  dist/slidev-shell not found — run "cd slidev-shell && npm run build" first');
+              }
+
               fileCopies.forEach(({ src, dest, log }) => copyFileIfExists(src, dest, log));
 
               // Fix KaTeX font paths in styles.css

@@ -131,7 +131,8 @@ function generateFormatsTs() {
     'export const ALL_SUPPORTED_EXTENSIONS: readonly string[] = [',
     "  '.md', '.markdown',",
     "  ...SUPPORTED_FORMATS.flatMap(f => f.extensions.map(e => `.${e}`)),",
-    '];',
+    // Sort longest first so compound extensions (e.g. .slide.md) match before shorter ones (.md)
+    '].sort((a, b) => b.length - a.length);',
     '',
     '/** All supported extensions without dot, excluding markdown */',
     'export const ALL_FORMAT_EXTENSIONS: readonly string[] =',

@@ -19,6 +19,13 @@ export interface FormatDefinition {
  */
 export const SUPPORTED_FORMATS: readonly FormatDefinition[] = [
   {
+    "fileType": "slidev",
+    "extensions": [
+      "slides.md"
+    ],
+    "languageId": "markdown"
+  },
+  {
     "fileType": "mermaid",
     "extensions": [
       "mermaid",
@@ -104,7 +111,7 @@ for (const f of SUPPORTED_FORMATS) {
 export const ALL_SUPPORTED_EXTENSIONS: readonly string[] = [
   '.md', '.markdown',
   ...SUPPORTED_FORMATS.flatMap(f => f.extensions.map(e => `.${e}`)),
-];
+].sort((a, b) => b.length - a.length);
 
 /** All supported extensions without dot, excluding markdown */
 export const ALL_FORMAT_EXTENSIONS: readonly string[] =

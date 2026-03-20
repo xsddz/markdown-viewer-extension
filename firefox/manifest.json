@@ -44,6 +44,7 @@
       "matches": [
         "file://*/*.md",
         "file://*/*.markdown",
+        "file://*/*.slides.md",
         "file://*/*.mermaid",
         "file://*/*.mmd",
         "file://*/*.plantuml",
@@ -58,6 +59,7 @@
         "file://*/*.drawio",
         "*://*/*.md",
         "*://*/*.markdown",
+        "*://*/*.slides.md",
         "*://*/*.mermaid",
         "*://*/*.mmd",
         "*://*/*.plantuml",
@@ -95,7 +97,10 @@
         "themes/table-styles/*.json",
         "themes/code-themes/*.json",
         "themes/layout-schemes/*.json",
-        "themes/color-schemes/*.json"
+        "themes/color-schemes/*.json",
+        "slidev-shell/*",
+        "slidev-shell/chunks/*",
+        "slidev-shell/assets/*"
       ],
       "matches": [
         "file:///*",

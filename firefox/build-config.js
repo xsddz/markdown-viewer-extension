@@ -109,6 +109,14 @@ export const createBuildConfig = () => {
               fileCopies.push(...copyDirectory('src/themes', 'dist/firefox/themes'));
               fileCopies.push(...copyDirectory('node_modules/@markdown-viewer/drawio2svg/resources/stencils', 'dist/firefox/stencils'));
 
+              // Copy pre-built Slidev Shell assets
+              if (fs.existsSync('dist/slidev-shell')) {
+                fileCopies.push(...copyDirectory('dist/slidev-shell', 'dist/firefox/slidev-shell'));
+                console.log('📦 Copied dist/slidev-shell → dist/firefox/slidev-shell');
+              } else {
+                console.warn('⚠️  dist/slidev-shell not found — run "cd slidev-shell && npm run build" first');
+              }
+
               // Copy pre-bundled library files
               for (const lib of PREBUNDLED_LIBS) {
                 fileCopies.push({ 

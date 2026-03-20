@@ -195,6 +195,13 @@ function copyAssets() {
     console.log('  • stencils');
   }
 
+  // Slidev shell inline HTML
+  const slidevInlineSrc = path.join(projectRoot, 'dist', 'vscode', 'webview', 'slidev-shell-inline.html');
+  if (fs.existsSync(slidevInlineSrc)) {
+    fs.copyFileSync(slidevInlineSrc, path.join(outdir, 'webview', 'slidev-shell-inline.html'));
+    console.log('  • slidev-shell-inline.html');
+  }
+
   // Settings panel CSS
   const settingsCss = path.join(projectRoot, 'vscode', 'src', 'webview', 'settings-panel.css');
   if (fs.existsSync(settingsCss)) {

@@ -1,6 +1,5 @@
 {
-  "formats": [
-    { "fileType": "mermaid", "extensions": ["mermaid", "mmd"] },
+  "formats": [    { "fileType": "slidev",      "extensions": ["slides.md"],  "languageId": "markdown" },    { "fileType": "mermaid", "extensions": ["mermaid", "mmd"] },
     { "fileType": "plantuml", "extensions": ["plantuml", "puml"] },
     { "fileType": "vega", "extensions": ["vega"] },
     { "fileType": "vega-lite", "extensions": ["vl", "vega-lite"], "languageId": "vega" },

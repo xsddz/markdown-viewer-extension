@@ -1,0 +1,3 @@
+@import '@slidev/client/styles/layouts-base.css';
+@import '@slidev/theme-bricks/styles/layouts.css';
+@import '@slidev/theme-bricks/styles/prism.css';

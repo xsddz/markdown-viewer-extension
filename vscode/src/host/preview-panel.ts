@@ -176,6 +176,7 @@ export class MarkdownPreviewPanel {
     
     this._document = document;
     this._panel.title = `Preview: ${path.basename(document.fileName)}`;
+    
     this.updateContent(document.getText());
     
     // Send scroll position immediately - ScrollSyncController will handle
@@ -946,7 +947,7 @@ export class MarkdownPreviewPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval'; img-src ${webview.cspSource} data: https: blob:; font-src ${webview.cspSource} data:; frame-src ${webview.cspSource} blob:; connect-src ${webview.cspSource};">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline' https://fonts.googleapis.com; script-src 'nonce-${nonce}' 'unsafe-eval'; img-src ${webview.cspSource} data: https: blob:; font-src ${webview.cspSource} data: https://fonts.gstatic.com; frame-src ${webview.cspSource} blob:; connect-src ${webview.cspSource} https:;">
   <link rel="stylesheet" href="${styleUri}">
   <link rel="stylesheet" href="${settingsStyleUri}">
   <link rel="stylesheet" href="${searchStyleUri}">
