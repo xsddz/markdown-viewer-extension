@@ -314,10 +314,10 @@ function copyResources() {
     if (fs.existsSync(themesDir)) {
       const manifest = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf8'));
       const bundles = {};
-      for (const [name, file] of Object.entries(manifest)) {
-        const themeFile = path.join(themesDir, /** @type {string} */ (file));
+      for (const [name, entry] of Object.entries(manifest)) {
+        const themeFile = path.join(themesDir, /** @type {string} */ (entry.file));
         if (fs.existsSync(themeFile)) {
-          bundles[name] = fs.readFileSync(themeFile, 'utf8');
+          bundles[name] = { code: fs.readFileSync(themeFile, 'utf8'), fonts: entry.fonts || {}, fontUrl: entry.fontUrl };
         }
       }
       fs.writeFileSync(`${DIST_DIR}/slidev-theme-bundles.json`, JSON.stringify(bundles));

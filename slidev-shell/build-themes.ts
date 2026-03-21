@@ -40,6 +40,29 @@ function readThemeFonts(themeName: string): Record<string, string> {
   return {}
 }
 
+/** Build Google Fonts URL from theme font declarations, skipping local fonts */
+function buildGoogleFontsUrl(fonts: Record<string, string>): string | undefined {
+  const local = new Set(
+    (fonts.local || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+  )
+  const webFonts = new Set<string>()
+  for (const key of ['sans', 'mono', 'serif'] as const) {
+    const val = fonts[key]
+    if (val) {
+      for (const name of val.split(',')) {
+        const trimmed = name.trim()
+        if (trimmed && !local.has(trimmed)) webFonts.add(trimmed)
+      }
+    }
+  }
+  if (webFonts.size === 0) return undefined
+  const weights = '200;400;600;700'
+  const families = [...webFonts]
+    .map(f => `family=${f.replace(/\s+/g, '+')}:wght@${weights}`)
+    .join('&')
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`
+}
+
 /** Build fontFamily config with theme fonts prepended to defaults */
 function buildFontFamily(themeFonts: Record<string, string>): Record<string, string> {
   const result = { ...DEFAULT_FONTS }
@@ -187,12 +210,13 @@ async function main() {
     await buildTheme(name)
   }
 
-  // Generate manifest
-  const manifest: Record<string, string> = {}
+  // Generate manifest with fonts info and fontUrl
+  const manifest: Record<string, { file: string; fonts: Record<string, string>; fontUrl?: string }> = {}
   for (const name of themes) {
     const file = path.join(outDir, `theme-${name}.js`)
     if (fs.existsSync(file)) {
-      manifest[name] = `theme-${name}.js`
+      const fonts = readThemeFonts(name)
+      manifest[name] = { file: `theme-${name}.js`, fonts, fontUrl: buildGoogleFontsUrl(fonts) }
     }
   }
   fs.writeFileSync(

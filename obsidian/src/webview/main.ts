@@ -329,6 +329,16 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       (root || rootContainer)?.appendChild(slidevContainer);
     }
 
+    // Cache theme bundles for reuse
+    let themeBundles: Record<string, { code: string; fonts: Record<string, string>; fontUrl?: string }> | null = null;
+    async function fetchBundles() {
+      if (!themeBundles) {
+        const json = await platform.resource.fetch('slidev-theme-bundles.json');
+        themeBundles = JSON.parse(json);
+      }
+      return themeBundles;
+    }
+
     await initSlidevViewer({
       rawContent: content,
       container: slidevContainer,
@@ -339,16 +349,25 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
           width: r.width,
           height: r.height,
         })),
+      onThemeReady: async (name) => {
+        const bundles = await fetchBundles();
+        const entry = bundles?.[name];
+        if (entry?.fonts) {
+          platform.renderer.setThemeConfig({
+            ...platform.renderer.getThemeConfig(),
+            fontFamily: entry.fonts.sans || entry.fonts.serif || undefined,
+            fontUrl: entry.fontUrl,
+          });
+        }
+      },
       getShellSource: async () => {
         const html = await platform.resource.fetch('slidev-shell-inline.html');
         const blob = new Blob([html], { type: 'text/html' });
         return URL.createObjectURL(blob);
       },
       getThemeCode: async (name) => {
-        try {
-          const json = await platform.resource.fetch('slidev-theme-bundles.json');
-          return JSON.parse(json)[name];
-        } catch { return undefined; }
+        const bundles = await fetchBundles();
+        return bundles?.[name]?.code;
       },
     });
     return;

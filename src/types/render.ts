@@ -72,4 +72,6 @@ export interface RendererThemeConfig {
   foreground?: string;
   /** Diagram rendering style: 'normal' or 'handDrawn' */
   diagramStyle?: 'normal' | 'handDrawn';
+  /** External font stylesheet URL (e.g. Google Fonts) to inject into render worker */
+  fontUrl?: string;
 }

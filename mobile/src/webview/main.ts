@@ -260,6 +260,16 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
       document.body.appendChild(slidevContainer);
     }
 
+    // Cache theme bundles for reuse
+    let themeBundles: Record<string, { code: string; fonts: Record<string, string>; fontUrl?: string }> | null = null;
+    async function fetchBundles() {
+      if (!themeBundles) {
+        const json = await platform.resource.fetch('slidev-theme-bundles.json');
+        themeBundles = JSON.parse(json);
+      }
+      return themeBundles;
+    }
+
     await initSlidevViewer({
       rawContent: content,
       container: slidevContainer,
@@ -269,6 +279,17 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
           width: r.width,
           height: r.height,
         })),
+      onThemeReady: async (name) => {
+        const bundles = await fetchBundles();
+        const entry = bundles?.[name];
+        if (entry?.fonts) {
+          platform.renderer.setThemeConfig({
+            ...platform.renderer.getThemeConfig(),
+            fontFamily: entry.fonts.sans || entry.fonts.serif || undefined,
+            fontUrl: entry.fontUrl,
+          });
+        }
+      },
       getShellSource: async () => {
         // Use platform.resource.fetch() — native fetch doesn't work reliably
         // with Flutter assets in WKWebView (macOS/iOS)
@@ -277,10 +298,8 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         return URL.createObjectURL(blob);
       },
       getThemeCode: async (name) => {
-        try {
-          return await platform.resource.fetch(`slidev-theme-bundles.json`)
-            .then((json: string) => JSON.parse(json)[name]);
-        } catch { return undefined; }
+        const bundles = await fetchBundles();
+        return bundles?.[name]?.code;
       },
     });
     return;

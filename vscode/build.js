@@ -238,7 +238,7 @@ function copyAssets() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src data: https://fonts.gstatic.com; connect-src https://fonts.googleapis.com https://fonts.gstatic.com;">
   <title>Render Frame</title>
   <style>
     * { margin: 0; padding: 0; }
@@ -274,10 +274,10 @@ function copyAssets() {
     if (fs.existsSync(themesDir)) {
       const manifest = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf8'));
       const bundles = {};
-      for (const [name, file] of Object.entries(manifest)) {
-        const themeFile = path.join(themesDir, /** @type {string} */ (file));
+      for (const [name, entry] of Object.entries(manifest)) {
+        const themeFile = path.join(themesDir, /** @type {string} */ (entry.file));
         if (fs.existsSync(themeFile)) {
-          bundles[name] = fs.readFileSync(themeFile, 'utf8');
+          bundles[name] = { code: fs.readFileSync(themeFile, 'utf8'), fonts: entry.fonts || {}, fontUrl: entry.fontUrl };
         }
       }
       fs.writeFileSync(path.join(outdir, 'webview', 'slidev-theme-bundles.json'), JSON.stringify(bundles));

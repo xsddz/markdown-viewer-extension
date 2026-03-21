@@ -26,6 +26,8 @@ export interface SlidevViewerOptions {
   getThemeUrl?: (name: string) => Promise<string | undefined>
   /** Called after slides are parsed with the presentation title */
   onParsed?: (info: { title: string; slideCount: number }) => void
+  /** Called with theme name before diagram rendering, allows setting renderer font config */
+  onThemeReady?: (themeName: string) => Promise<void>
   /** Display mode: 'presentation' (single slide with nav) or 'list' (all slides scrollable) */
   mode?: 'presentation' | 'list'
 }
@@ -37,7 +39,7 @@ export interface SlidevViewerOptions {
  * Parses slides, creates iframe, and renders diagrams asynchronously.
  */
 export async function initSlidevViewer(options: SlidevViewerOptions): Promise<void> {
-  const { rawContent, container, renderDiagram, getShellSource, getThemeCode, getThemeUrl, onParsed, mode = 'presentation' } = options
+  const { rawContent, container, renderDiagram, getShellSource, getThemeCode, getThemeUrl, onParsed, onThemeReady, mode = 'presentation' } = options
 
   if (!rawContent.trim()) return
 
@@ -96,6 +98,11 @@ export async function initSlidevViewer(options: SlidevViewerOptions): Promise<vo
   )
   iframe.focus()
 
+  // Let caller configure diagram renderer with theme fonts before rendering
+  if (onThemeReady && diagramJobs.length > 0) {
+    await onThemeReady(themeName)
+  }
+
   // Render diagrams asynchronously — results streamed to shell via postMessage
   renderDiagramsAsync(iframe, diagramJobs, renderDiagram)
 }
@@ -110,7 +117,10 @@ function renderDiagramsAsync(
   for (const job of diagramJobs) {
     renderDiagram(job.renderType, job.code)
       .then(({ base64, width, height }) => {
-        const html = `<div class="slidev-diagram" style="display:flex;justify-content:center;margin:8px 0"><img src="data:image/png;base64,${base64}" width="${width}" height="${height}" style="max-width:100%;height:auto" /></div>`
+        // Renderers produce 4x PNG for high-DPI; scale display size back to original
+        const displayWidth = Math.round(width / 4)
+        const displayHeight = Math.round(height / 4)
+        const html = `<div class="slidev-diagram" style="display:flex;justify-content:center;margin:8px 0"><img src="data:image/png;base64,${base64}" width="${displayWidth}" height="${displayHeight}" style="max-width:100%;height:auto" /></div>`
         iframe.contentWindow?.postMessage(
           { type: 'SLIDEV_UPDATE_DIAGRAM', id: job.id, html },
           '*',

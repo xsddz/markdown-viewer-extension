@@ -189,6 +189,21 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
           width: r.width,
           height: r.height,
         })),
+      onThemeReady: async (name) => {
+        try {
+          const resp = await fetch(runtime.runtime.getURL('slidev-shell/themes/manifest.json'));
+          if (!resp.ok) return;
+          const manifest = await resp.json();
+          const entry = manifest[name];
+          if (entry?.fonts) {
+            platform.renderer.setThemeConfig({
+              ...platform.renderer.getThemeConfig(),
+              fontFamily: entry.fonts.sans || entry.fonts.serif || undefined,
+              fontUrl: entry.fontUrl,
+            });
+          }
+        } catch { /* ignore */ }
+      },
       getShellSource: async () =>
         runtime.runtime.getURL('slidev-shell/index.html'),
       getThemeUrl: async (name) =>

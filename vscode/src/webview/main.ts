@@ -247,6 +247,16 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     const baseUri = window.VSCODE_WEBVIEW_BASE_URI;
     const nonce = window.VSCODE_NONCE;
 
+    // Cache theme bundles for reuse between getThemeCode and onThemeReady
+    let themeBundles: Record<string, { code: string; fonts: Record<string, string>; fontUrl?: string }> | null = null;
+    async function fetchBundles() {
+      if (!themeBundles) {
+        const resp = await fetch(`${baseUri}/slidev-theme-bundles.json`);
+        if (resp.ok) themeBundles = await resp.json();
+      }
+      return themeBundles;
+    }
+
     await initSlidevViewer({
       rawContent: content,
       container: slidevContainer,
@@ -257,6 +267,17 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
           width: r.width,
           height: r.height,
         })),
+      onThemeReady: async (name) => {
+        const bundles = await fetchBundles();
+        const entry = bundles?.[name];
+        if (entry?.fonts) {
+          platform.renderer.setThemeConfig({
+            ...platform.renderer.getThemeConfig(),
+            fontFamily: entry.fonts.sans || entry.fonts.serif || undefined,
+            fontUrl: entry.fontUrl,
+          });
+        }
+      },
       getShellSource: async () => {
         const resp = await fetch(`${baseUri}/slidev-shell-inline.html`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -266,10 +287,8 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
         return URL.createObjectURL(blob);
       },
       getThemeCode: async (name) => {
-        const resp = await fetch(`${baseUri}/slidev-theme-bundles.json`);
-        if (!resp.ok) return undefined;
-        const bundles = await resp.json();
-        return bundles[name];
+        const bundles = await fetchBundles();
+        return bundles?.[name]?.code;
       },
     });
     return;

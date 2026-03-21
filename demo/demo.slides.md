@@ -1,5 +1,5 @@
 ---
-theme: seriph
+theme: bricks
 title: Slidev Feature Showcase
 transition: slide-left
 aspectRatio: 16/9
