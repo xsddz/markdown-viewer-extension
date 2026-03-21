@@ -118,8 +118,12 @@ export default defineConfig({
         // Scan @slidev/client layouts + styles for UnoCSS utility classes
         /node_modules\/@slidev\/client\/layouts\/.*\.vue$/,
         /node_modules\/@slidev\/client\/styles\/.*\.css$/,
-        // Scan theme packages for UnoCSS utility classes
-        /node_modules\/@slidev\/theme-.*\/(layouts\/.*\.vue|styles\/.*\.css)$/,
+        // Theme packages are NOT scanned here — they are built separately
+        // (see build-themes.ts) to avoid global CSS conflicts.
+      ],
+      exclude: [
+        // Exclude theme entry files from main build scanning
+        /slidev-shell\/themes\//,
       ],
     },
   },

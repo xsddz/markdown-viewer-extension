@@ -261,9 +261,15 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
         const resp = await fetch(`${baseUri}/slidev-shell-inline.html`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         let html = await resp.text();
-        html = html.replace('__SLIDEV_NONCE__', nonce);
+        html = html.replaceAll('__SLIDEV_NONCE__', nonce);
         const blob = new Blob([html], { type: 'text/html' });
         return URL.createObjectURL(blob);
+      },
+      getThemeCode: async (name) => {
+        const resp = await fetch(`${baseUri}/slidev-theme-bundles.json`);
+        if (!resp.ok) return undefined;
+        const bundles = await resp.json();
+        return bundles[name];
       },
     });
     return;

@@ -276,6 +276,12 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         const blob = new Blob([html], { type: 'text/html' });
         return URL.createObjectURL(blob);
       },
+      getThemeCode: async (name) => {
+        try {
+          return await platform.resource.fetch(`slidev-theme-bundles.json`)
+            .then((json: string) => JSON.parse(json)[name]);
+        } catch { return undefined; }
+      },
     });
     return;
   }

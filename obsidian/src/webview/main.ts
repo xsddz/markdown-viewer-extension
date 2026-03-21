@@ -344,6 +344,12 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
         const blob = new Blob([html], { type: 'text/html' });
         return URL.createObjectURL(blob);
       },
+      getThemeCode: async (name) => {
+        try {
+          const json = await platform.resource.fetch('slidev-theme-bundles.json');
+          return JSON.parse(json)[name];
+        } catch { return undefined; }
+      },
     });
     return;
   }

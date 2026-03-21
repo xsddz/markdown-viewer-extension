@@ -7,13 +7,17 @@
  * evaluated until data is ready.
  */
 
-import { getTheme } from './theme-loader'
+import * as Vue from 'vue'
+import { loadThemeFromCode, loadThemeFromUrl } from './theme-loader'
 import { bootstrap } from './bootstrap'
 import { bootstrapList } from './bootstrap-list'
 import { initSlides } from './shims/slides'
 
+// Expose Vue as global for theme IIFE bundles
+;(window as any).Vue = Vue
+
 /** Wait for SLIDEV_INIT message from host, or use pre-injected data */
-function waitForData(): Promise<{ mode?: string }> {
+function waitForData(): Promise<{ mode?: string; themeCode?: string; themeUrl?: string }> {
   // If data already injected (standalone / direct usage), proceed
   if ((window as any).__SLIDEV__?.slides?.length) {
     return Promise.resolve({})
@@ -27,7 +31,7 @@ function waitForData(): Promise<{ mode?: string }> {
           slides: event.data.slides,
           configs: event.data.configs || {},
         }
-        resolve({ mode: event.data.mode })
+        resolve({ mode: event.data.mode, themeCode: event.data.themeCode, themeUrl: event.data.themeUrl })
       }
     })
     // Signal readiness to the host content script
@@ -65,14 +69,21 @@ function injectGoogleFonts(fonts: { sans?: string; mono?: string; serif?: string
 }
 
 async function main() {
-  const { mode } = await waitForData()
+  const { mode, themeCode, themeUrl } = await waitForData()
 
-  const themeName = (window as any).__SLIDEV__?.configs?.theme || 'default'
-  const theme = getTheme(themeName)
+  // Load theme: prefer eval (themeCode) for blob-URL contexts,
+  // fall back to <script src> (themeUrl) for strict CSP contexts
+  let theme
+  if (themeCode) {
+    theme = loadThemeFromCode(themeCode)
+  } else if (themeUrl) {
+    theme = await loadThemeFromUrl(themeUrl)
+  } else {
+    const themeName = (window as any).__SLIDEV__?.configs?.theme || 'default'
+    console.warn(`[slidev-shell] No theme code/url provided for "${themeName}"`)
+  }
   if (theme) {
-    // Store theme layouts for slides shim to pick up during bootstrap
     ;(window as any).__SLIDEV__.themeLayouts = theme.layouts
-    // Load web fonts from Google Fonts
     injectGoogleFonts(theme.fonts)
   }
 

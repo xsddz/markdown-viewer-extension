@@ -117,6 +117,12 @@ export const createBuildConfig = () => {
                 console.warn('⚠️  dist/slidev-shell not found — run "cd slidev-shell && npm run build" first');
               }
 
+              // Copy pre-built theme IIFE bundles for dynamic loading
+              if (fs.existsSync('dist/themes')) {
+                fileCopies.push(...copyDirectory('dist/themes', 'dist/firefox/slidev-shell/themes'));
+                console.log('📦 Copied dist/themes → dist/firefox/slidev-shell/themes');
+              }
+
               // Copy pre-bundled library files
               for (const lib of PREBUNDLED_LIBS) {
                 fileCopies.push({ 

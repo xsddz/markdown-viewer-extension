@@ -191,6 +191,8 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
         })),
       getShellSource: async () =>
         runtime.runtime.getURL('slidev-shell/index.html'),
+      getThemeUrl: async (name) =>
+        runtime.runtime.getURL(`slidev-shell/themes/theme-${name}.js`),
       onParsed: ({ title }) => {
         document.title = title;
         saveToHistory(platform);

@@ -202,6 +202,13 @@ function copyAssets() {
     console.log('  • slidev-shell-inline.html');
   }
 
+  // Slidev theme bundles JSON
+  const themeBundlesSrc = path.join(projectRoot, 'dist', 'vscode', 'webview', 'slidev-theme-bundles.json');
+  if (fs.existsSync(themeBundlesSrc)) {
+    fs.copyFileSync(themeBundlesSrc, path.join(outdir, 'webview', 'slidev-theme-bundles.json'));
+    console.log('  • slidev-theme-bundles.json');
+  }
+
   // Settings panel CSS
   const settingsCss = path.join(projectRoot, 'vscode', 'src', 'webview', 'settings-panel.css');
   if (fs.existsSync(settingsCss)) {

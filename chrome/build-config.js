@@ -119,6 +119,12 @@ export const createBuildConfig = () => {
                 console.warn('⚠️  dist/slidev-shell not found — run "cd slidev-shell && npm run build" first');
               }
 
+              // Copy pre-built theme IIFE bundles for dynamic loading
+              if (fs.existsSync('dist/themes')) {
+                fileCopies.push(...copyDirectory('dist/themes', 'dist/chrome/slidev-shell/themes'));
+                console.log('📦 Copied dist/themes → dist/chrome/slidev-shell/themes');
+              }
+
               fileCopies.forEach(({ src, dest, log }) => copyFileIfExists(src, dest, log));
 
               // Fix KaTeX font paths in styles.css

@@ -86,7 +86,8 @@
         "themes/color-schemes/*.json",
         "slidev-shell/*",
         "slidev-shell/chunks/*",
-        "slidev-shell/assets/*"
+        "slidev-shell/assets/*",
+        "slidev-shell/themes/*"
       ],
       "matches": [
         "file://*",

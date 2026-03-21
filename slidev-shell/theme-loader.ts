@@ -1,9 +1,9 @@
 /**
- * Theme loader
+ * Theme loader — eval-based dynamic loading
  *
- * All themes are statically imported so the bundler can inline them
- * without dynamic import(). Theme CSS is imported as ?inline strings
- * and injected into the DOM only when the theme is selected.
+ * Themes are built as separate IIFE bundles (see build-themes.ts).
+ * Each IIFE assigns { layouts, css, fonts } to window.__SLIDEV_THEME__.
+ * The theme code is embedded in the HTML as a map and eval'd on demand.
  */
 import type { Component } from 'vue'
 
@@ -18,54 +18,99 @@ export interface ThemeModule {
   }
 }
 
-// Static imports — all themes bundled together
-import * as themeDefault from './themes/default'
-import * as themeSeriph from './themes/seriph'
-import * as themeAppleBasic from './themes/apple-basic'
-import * as themeBricks from './themes/bricks'
-import * as themeDracula from './themes/dracula'
-import * as themePurplin from './themes/purplin'
-import * as themeAcademic from './themes/academic'
-import * as themeGeist from './themes/geist'
-
-const themes: Record<string, ThemeModule> = {
-  default: themeDefault,
-  seriph: themeSeriph,
-  'apple-basic': themeAppleBasic,
-  bricks: themeBricks,
-  dracula: themeDracula,
-  purplin: themePurplin,
-  academic: themeAcademic,
-  geist: themeGeist,
-}
-
-/** Available theme names */
-export const availableThemes = Object.keys(themes)
-
 let _injectedStyle: HTMLStyleElement | null = null
 
 /**
- * Get a theme by name. Injects the theme's CSS into the DOM.
- * Returns the theme module or undefined if not found.
+ * Load a theme by eval'ing its IIFE code.
+ * The code must set window.__SLIDEV_THEME__ = { layouts, css, fonts }.
  */
-export function getTheme(name: string): ThemeModule | undefined {
-  const theme = themes[name]
-  if (!theme) {
-    console.warn(`[slidev-shell] Theme "${name}" not available. Available: ${availableThemes.join(', ')}`)
+export function loadThemeFromCode(code: string): ThemeModule | undefined {
+  // Clean previous theme state
+  ;(window as any).__SLIDEV_THEME__ = undefined
+
+  try {
+    // Theme IIFE references window.Vue — must be exposed before eval
+    // eslint-disable-next-line no-eval
+    ;(0, eval)(code)
+  } catch (err) {
+    console.error('[slidev-shell] Failed to eval theme code:', err)
     return undefined
   }
 
+  return _applyTheme()
+}
+
+/**
+ * Load a theme by injecting a <script src> tag.
+ * Works under strict CSP (e.g. Chrome extension pages) where eval is blocked.
+ */
+export function loadThemeFromUrl(url: string): Promise<ThemeModule | undefined> {
+  ;(window as any).__SLIDEV_THEME__ = undefined
+
+  return new Promise((resolve) => {
+    const script = document.createElement('script')
+    script.src = url
+    script.onload = () => {
+      script.remove()
+      resolve(_applyTheme())
+    }
+    script.onerror = () => {
+      console.error('[slidev-shell] Failed to load theme script:', url)
+      script.remove()
+      resolve(undefined)
+    }
+    document.head.appendChild(script)
+  })
+}
+
+function _applyTheme(): ThemeModule | undefined {
+  const theme = (window as any).__SLIDEV_THEME__ as ThemeModule | undefined
+  if (!theme) {
+    console.warn('[slidev-shell] Theme code did not set window.__SLIDEV_THEME__')
+    return undefined
+  }
+
+  // Build combined CSS: theme styles + font-family overrides
+  let css = theme.css || ''
+
+  // Inject :root font-family overrides so the shell's UnoCSS utilities
+  // (font-sans, font-serif, font-mono) and body text use theme fonts
+  if (theme.fonts) {
+    const decls: string[] = []
+    const { sans, serif, mono } = theme.fonts
+    if (sans) {
+      const families = sans.split(',').map(f => f.trim().includes(' ') && !f.trim().startsWith('"') ? `"${f.trim()}"` : f.trim()).join(', ')
+      decls.push(`font-family: ${families}, ui-sans-serif, system-ui, sans-serif`)
+    }
+    if (decls.length) {
+      css += `\n:root, .slidev-layout { ${decls.join('; ')} }`
+    }
+    // Override utility classes for serif/mono when theme specifies them
+    if (serif) {
+      const families = serif.split(',').map(f => f.trim().includes(' ') && !f.trim().startsWith('"') ? `"${f.trim()}"` : f.trim()).join(', ')
+      css += `\n.font-serif, .slidev-layout h1, .slidev-layout h2, .slidev-layout h3 { font-family: ${families}, ui-serif, Georgia, serif }`
+    }
+    if (mono) {
+      const families = mono.split(',').map(f => f.trim().includes(' ') && !f.trim().startsWith('"') ? `"${f.trim()}"` : f.trim()).join(', ')
+      css += `\n.font-mono, code, pre { font-family: ${families}, ui-monospace, monospace }`
+    }
+  }
+
   // Inject theme CSS (replace previous theme's styles)
-  if (theme.css) {
+  if (css) {
     if (_injectedStyle) {
-      _injectedStyle.textContent = theme.css
+      _injectedStyle.textContent = css
     } else {
       _injectedStyle = document.createElement('style')
-      _injectedStyle.setAttribute('data-slidev-theme', name)
-      _injectedStyle.textContent = theme.css
+      _injectedStyle.setAttribute('data-slidev-theme', 'active')
+      _injectedStyle.textContent = css
       document.head.appendChild(_injectedStyle)
     }
+  } else if (_injectedStyle) {
+    _injectedStyle.textContent = ''
   }
 
   return theme
 }
+
+

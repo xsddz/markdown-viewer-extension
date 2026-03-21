@@ -308,6 +308,21 @@ function copyResources() {
 </html>`;
     fs.writeFileSync(`${DIST_DIR}/slidev-shell-inline.html`, slidevInlineHtml);
     console.log('  • slidev-shell-inline.html');
+
+    // Write theme bundles as separate JSON for dynamic loading
+    const themesDir = path.join(projectRoot, 'dist', 'themes');
+    if (fs.existsSync(themesDir)) {
+      const manifest = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf8'));
+      const bundles = {};
+      for (const [name, file] of Object.entries(manifest)) {
+        const themeFile = path.join(themesDir, /** @type {string} */ (file));
+        if (fs.existsSync(themeFile)) {
+          bundles[name] = fs.readFileSync(themeFile, 'utf8');
+        }
+      }
+      fs.writeFileSync(`${DIST_DIR}/slidev-theme-bundles.json`, JSON.stringify(bundles));
+      console.log(`  • ${Object.keys(bundles).length} theme bundles (slidev-theme-bundles.json)`);
+    }
   } else {
     console.warn('  ⚠️  dist/slidev-shell-vscode not found — Slidev presentations will not work');
   }

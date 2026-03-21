@@ -268,6 +268,24 @@ function copyAssets() {
   if (fs.existsSync(slidevVscodeDir)) {
     const shellJs = fs.readFileSync(path.join(slidevVscodeDir, 'slidev-shell.js'), 'utf8');
     const shellCss = fs.readFileSync(path.join(slidevVscodeDir, 'assets', 'style.css'), 'utf8');
+
+    // Read theme bundles and write as separate JSON file for webview to fetch
+    const themesDir = path.join(projectRoot, 'dist', 'themes');
+    if (fs.existsSync(themesDir)) {
+      const manifest = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf8'));
+      const bundles = {};
+      for (const [name, file] of Object.entries(manifest)) {
+        const themeFile = path.join(themesDir, /** @type {string} */ (file));
+        if (fs.existsSync(themeFile)) {
+          bundles[name] = fs.readFileSync(themeFile, 'utf8');
+        }
+      }
+      fs.writeFileSync(path.join(outdir, 'webview', 'slidev-theme-bundles.json'), JSON.stringify(bundles));
+      console.log(`  • ${Object.keys(bundles).length} theme bundles (slidev-theme-bundles.json)`);
+    } else {
+      console.warn('  ⚠️  dist/themes not found — run "npx tsx slidev-shell/build-themes.ts" first');
+    }
+
     const slidevInlineHtml = `<!DOCTYPE html>
 <html>
 <head>
